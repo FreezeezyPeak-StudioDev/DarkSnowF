@@ -1,0 +1,137 @@
+/* dialogs.css - Estilos compartidos de diálogos personalizados (DSDialogs).
+   Se carga en TODOS los HTML. Paleta: negro, blanco, gris, azul oscuro, azul claro. */
+
+:root {
+  --ds-accent: #0066B2;
+  --ds-text: #e8eef8;
+}
+
+.ds-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: dsFadeIn 0.2s ease-out;
+}
+
+.ds-confirm-overlay.active {
+  display: flex;
+}
+
+.ds-confirm-modal {
+  background: rgba(20, 30, 48, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+  animation: dsModalScale 0.25s ease-out;
+  box-sizing: border-box;
+}
+
+@keyframes dsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dsModalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ds-confirm-title {
+  margin: 0 0 12px 0;
+  color: var(--ds-accent, #0066B2);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.ds-confirm-message {
+  margin: 0 0 20px 0;
+  color: var(--ds-text, #e8eef8);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.ds-confirm-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--ds-text, #e8eef8);
+  font-size: 0.9rem;
+  outline: none;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ds-confirm-input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--ds-accent, #0066B2);
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.ds-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.ds-confirm-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ds-confirm-btn.primary {
+  background: var(--ds-accent, #0066B2);
+  color: #000;
+}
+
+.ds-confirm-btn.primary:hover {
+  background: #5ee3ff;
+  transform: translateY(-1px);
+}
+
+.ds-confirm-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ds-text, #e8eef8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ds-confirm-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ds-confirm-btn.danger {
+  background: rgba(255, 60, 60, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 60, 60, 0.3);
+}
+
+.ds-confirm-btn.danger:hover {
+  background: rgba(255, 60, 60, 0.25);
+}

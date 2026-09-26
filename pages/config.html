@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración - DarkSnowF</title>
+  <link rel="icon" href="../assets/Texturas/Logos/DarkSnowF.png" type="image/png">
+  <link rel="stylesheet" href="../src/css/main.css">
+  <link rel="stylesheet" href="../src/css/themes.css">
+  <style>
+    /* Cursor personalizado único */
+    * {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23000" stroke-width="0.5" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') 4 4, auto !important;
+    }
+    
+    a, button, input, select, .btn {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23000" stroke-width="0.5" d="M8 3v3h3v2H8v3H6v-3H3V6h3V3h2zm6.5 4L20 12.5 14.5 18H11v-3.5L16.5 9H11V7h9v9h-2v-5.5L12.5 16H11v-2h3.5L9 8.5V11H7V7h7.5z"/></svg>') 8 8, pointer !important;
+    }
+    
+    body {
+      background: linear-gradient(180deg, #080c15 0%, #070b12 45%, #05070a 100%);
+      color: #e8eef8;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .brand-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      color: #0066B2;
+      margin-bottom: 10px;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .setting-card {
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(8, 13, 24, 0.8);
+      border: 1px solid rgba(0, 102, 178, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.2s ease;
+    }
+    .setting-card:hover {
+      border-color: rgba(0, 51, 102, 0.3);
+    }
+    .setting-card h3 {
+      color: #0066B2;
+      margin-top: 0;
+    }
+    .setting-group {
+      margin-bottom: 15px;
+    }
+    .setting-group label {
+      display: block;
+      color: #8fa2c8;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .setting-group select,
+    .setting-group input {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 51, 102, 0.2);
+      border-radius: 8px;
+      color: #e8eef8;
+    }
+    .setting-group select:focus,
+    .setting-group input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #0066B2;
+    }
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .button-group .btn:first-child {
+      grid-column: 1 / -1;
+    }
+    .save-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .save-stack .btn {
+      flex: none;
+      width: 100%;
+    }
+    .reset-opts {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: #8fa2c8;
+    }
+    .reset-opts label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .reset-opts input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    .btn {
+      flex: 1;
+      padding: 9px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #0066B2;
+      color: #070b12;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 20px rgba(0, 51, 102, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(0, 51, 102, 0.15);
+      color: #0066B2;
+      border: 1px solid #0066B2;
+    }
+    .btn-secondary:hover {
+      background: rgba(0, 51, 102, 0.25);
+    }
+    .btn img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .zoom-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    .zoom-btn {
+      width: 44px;
+      padding: 8px !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .zoom-btn img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      margin-right: 0;
+    }
+    #zoom-value {
+      min-width: 56px;
+      text-align: center;
+      color: #e8eef8;
+      font-weight: 600;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: rgba(0, 51, 102, 0.15);
+      border: 1px solid #0066B2;
+      border-radius: 8px;
+      color: #0066B2;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .back-btn:hover {
+      background: rgba(0, 51, 102, 0.25);
+      transform: translateY(-2px);
+    }
+    .notice-banner {
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(0, 51, 102, 0.15);
+      border: 1px solid rgba(0, 102, 178, 0.4);
+      color: #e8eef8;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .pool-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .pool-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      color: #e8eef8;
+    }
+    .pool-item img {
+      width: 40px;
+      height: 24px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .pool-item span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pool-item button {
+      background: rgba(120, 130, 150, 0.3);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .pool-empty {
+      font-size: 0.8rem;
+      color: #8fa2c8;
+    }
+  </style>
+  <link rel="stylesheet" href="../src/css/cursor.css">
+  <link rel="stylesheet" href="../src/css/menu.css">
+  <link rel="stylesheet" href="../src/css/modals.css">
+  <link rel="stylesheet" href="../src/css/dialogs.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="../assets/Texturas/Logos/logo_freezeezy peak_HD.png" alt="Logo DarkSnowF" class="brand-logo">
+      <h1 data-pi18n="cfgTitle">Configuración</h1>
+      <p data-pi18n="cfgSub">Personaliza tu experiencia en DarkSnowF</p>
+    </div>
+
+    <div class="settings-grid">
+      <div class="setting-card">
+        <h3 data-pi18n="apTitle">Apariencia</h3>
+        <div class="setting-group">
+          <label for="theme" data-pi18n="themeLabel">Tema</label>
+          <select id="theme">
+            <option value="dark" data-pi18n="themeDark">Por defecto (recomendado)</option>
+            <option value="oscuro" data-pi18n="themeOscuro">Oscuro (Negro)</option>
+            <option value="claro" data-pi18n="themeLight">Claro (Luminoso)</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label for="fontFamily" data-pi18n="fontLabel">Tipografía</label>
+          <select id="fontFamily">
+            <option value="Segoe UI, Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+            <option value="Inter, sans-serif">Inter</option>
+            <option value="Roboto, sans-serif">Roboto</option>
+            <option value="Verdana, Geneva, sans-serif">Verdana</option>
+            <option value="Courier New, monospace">Monospace</option>
+          </select>
+        </div>
+        <hr style="border: none; border-top: 1px solid rgba(0, 51, 102, 0.1); margin: 15px 0;">
+        <p style="color: #8fa2c8; font-size: 0.85rem; margin-bottom: 10px;" data-pi18n="fxNote">
+          <strong>Efectos de fondo</strong> - Desactiva si prefieres un look más limpio
+        </p>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="showParticles">
+          <label for="showParticles" data-pi18n="partLabel">Mostrar partículas (puntos azules flotantes)</label>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="snow" checked>
+          <label for="snow" data-pi18n="snowLabel">Nieve cayendo</label>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="customCursor" checked>
+          <label for="customCursor" data-pi18n="cursorLabel">Cursor personalizado</label>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="catCursors">
+          <label for="catCursors" data-pi18n="catCurLabel">Cursores de gato</label>
+        </div>
+        <p style="color: #8fa2c8; font-size: 0.8rem; margin: 0;" data-pi18n="catCurHint">Esta opción solo está disponible al usar CatCursorF.</p>
+        <p style="color: #8fa2c8; font-size: 0.8rem; margin: 4px 0 0 0;"><a id="catAmoLink" href="https://addons.mozilla.org/es-ES/firefox/addon/catcursorf/" target="_blank" rel="noopener" style="color: #4da3ff;" data-pi18n="catCurLink">Instalar CatCursorF</a></p>
+      </div>
+
+      <div class="setting-card">
+        <h3 data-pi18n="bgTitle">Fondo</h3>
+        <div class="setting-group">
+          <label for="wpPresetCfg" data-pi18n="bgPreset">Fondo predeterminado</label>
+          <select id="wpPresetCfg">
+            <option value="default" data-pi18n="bgOptDefault">Degradado oscuro (predeterminado)</option>
+            <option value="assets/Texturas/backgrounds/noche-montanas.jpg" data-pi18n="bgMountains">Montañas nocturnas</option>
+            <option value="assets/Texturas/backgrounds/aurora.jpg" data-pi18n="bgAurora">Aurora boreal</option>
+            <option value="assets/Texturas/backgrounds/montanas-nevadas.jpg" data-pi18n="bgSnow">Montañas nevadas</option>
+            <option value="assets/Texturas/backgrounds/paisaje-nevado.jpg" data-pi18n="bgSpace">Paisaje nevado</option>
+            <option value="assets/Texturas/backgrounds/tierra-espacio.jpg" data-pi18n="bgEarth">Tierra desde el espacio</option>
+            <option value="assets/Texturas/backgrounds/noche-estrellas.jpg" data-pi18n="bgStarry">Noche estrellada</option>
+            <option value="assets/Texturas/backgrounds/lago-montana.jpg" data-pi18n="bgLake">Lago y montaña</option>
+            <option value="assets/Texturas/backgrounds/bmw-m4.jpg" data-pi18n="bgBmw">BMW M4</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label for="wpUrlCfg" data-pi18n="bgUrl">O una URL de imagen</label>
+          <input id="wpUrlCfg" type="url" placeholder="https://ejemplo.com/imagen.jpg" data-pi18n-ph="bgUrlPh">
+        </div>
+        <p style="color: #8fa2c8; font-size: 0.8rem; margin: 0;" data-pi18n="bgHint">Se aplica al instante. Ábrelo en una pestaña nueva para verlo.</p>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="rotWallpaper">
+          <label for="rotWallpaper" data-pi18n="rotLabel">Cambiar fondo automáticamente</label>
+        </div>
+        <div class="setting-group">
+          <label for="rotInterval" data-pi18n="rotIntLabel">Cada cuánto cambia</label>
+          <select id="rotInterval">
+            <option value="tab" data-pi18n="rotEach">En cada pestaña</option>
+            <option value="5" data-pi18n="rot5m">Cada 5 minutos</option>
+            <option value="15" data-pi18n="rot15m">Cada 15 minutos</option>
+            <option value="30" data-pi18n="rot30m">Cada 30 minutos</option>
+            <option value="60" data-pi18n="rot60m">Cada hora</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label data-pi18n="poolLabel">Fondos en rotación</label>
+          <div id="wpPool" class="pool-list"></div>
+          <button class="btn btn-secondary" id="btn-pool-add" style="margin-top: 8px;"><span data-pi18n="poolAdd">Agregar el fondo actual</span></button>
+          <p style="color: #8fa2c8; font-size: 0.8rem; margin: 8px 0 0 0;" data-pi18n="poolHint">Los fondos que apliques se agregan solos a la rotación.</p>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <h3 data-pi18n="compTitle">Componentes</h3>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="showClock" checked>
+          <label for="showClock" data-pi18n="clockLabel">Mostrar reloj</label>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="showSearch" checked>
+          <label for="showSearch" data-pi18n="searchLabel">Mostrar búsqueda</label>
+        </div>
+        <hr style="border: none; border-top: 1px solid rgba(0, 51, 102, 0.1); margin: 15px 0;">
+        <p style="color: #8fa2c8; font-size: 0.85rem; margin-bottom: 10px;">
+          <strong data-pi18n="clockOptions">Opciones del reloj</strong>
+        </p>
+        <div class="setting-group">
+          <label for="clockFormat" data-pi18n="clockFormatLabel">Formato de hora</label>
+          <select id="clockFormat">
+            <option value="24h" data-pi18n="clock24h">24 horas (militar)</option>
+            <option value="12h" data-pi18n="clock12h">12 horas (AM/PM)</option>
+          </select>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="clockSeconds" checked>
+          <label for="clockSeconds" data-pi18n="clockSecondsLabel">Mostrar segundos</label>
+        </div>
+        <div class="setting-group">
+          <label for="dateFormat" data-pi18n="dateFormatLabel">Formato de fecha</label>
+          <select id="dateFormat">
+            <option value="numeric" data-pi18n="dateNumeric">Numérico (DD/MM/AAAA)</option>
+            <option value="text" data-pi18n="dateText">Texto (Lun 23 Sep)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <h3 data-pi18n="audioTitle">Audio</h3>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="enableClickSound" checked>
+          <label for="enableClickSound" data-pi18n="clickLabel">Sonidos de clic</label>
+        </div>
+        <div class="setting-group">
+          <label for="clickVolume" data-pi18n="clickVol">Volumen clic</label>
+          <input id="clickVolume" type="range" min="0" max="1" step="0.05" value="0.35">
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <h3 data-pi18n="sysTitle">Sistema</h3>
+        <div class="setting-group">
+          <label for="speed" data-pi18n="speedLabel">Velocidad de animación</label>
+          <select id="speed">
+            <option value="slow" data-pi18n="speedSlow">Lenta</option>
+            <option value="normal" selected data-pi18n="speedNormal">Normal</option>
+            <option value="fast" data-pi18n="speedFast">Rápida</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label for="tz" data-pi18n="tzLabel">Zona horaria del reloj</label>
+          <select id="tz">
+            <option value="local" data-pi18n="tzLocal">Automática (PC)</option>
+            <option value="UTC">UTC</option>
+            <option value="America/Mexico_City">Ciudad de México</option>
+            <option value="America/Bogota">Bogotá / Lima</option>
+            <option value="America/Santiago">Santiago</option>
+            <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+            <option value="America/New_York">Nueva York</option>
+            <option value="America/Chicago">Chicago</option>
+            <option value="America/Los_Angeles">Los Ángeles</option>
+            <option value="Europe/London">Londres</option>
+            <option value="Europe/Madrid">Madrid</option>
+            <option value="Europe/Paris">París</option>
+            <option value="Europe/Berlin">Berlín</option>
+            <option value="Africa/Cairo">El Cairo</option>
+            <option value="Asia/Dubai">Dubái</option>
+            <option value="Asia/Shanghai">Shanghái</option>
+            <option value="Asia/Tokyo">Tokio</option>
+            <option value="Australia/Sydney">Sídney</option>
+            <option value="Pacific/Auckland">Auckland</option>
+          </select>
+        </div>
+        <div class="setting-group checkbox-group">
+          <input type="checkbox" id="syncTime" checked>
+          <label for="syncTime" data-pi18n="syncLabel">Sincronizar hora por internet (sin conexión usa la del PC)</label>
+        </div>
+        <div class="setting-group">
+          <label data-pi18n="zoomLabel">Zoom de la página</label>
+          <div class="zoom-row">
+            <button class="btn btn-secondary zoom-btn" id="btn-zoom-out" title="Reducir zoom">
+              <img src="../assets/Texturas/UI/zoom_out.svg" alt="Reducir">
+            </button>
+            <span id="zoom-value">80%</span>
+            <button class="btn btn-secondary zoom-btn" id="btn-zoom-in" title="Aumentar zoom">
+              <img src="../assets/Texturas/UI/zoom_in.svg" alt="Aumentar">
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-card">
+        <h3 data-pi18n="langHelpTitle">Idioma y ayuda</h3>
+        <div class="setting-group">
+          <label data-pi18n="langName">Idioma de la página principal</label>
+          <div class="zoom-row">
+            <button class="btn btn-secondary" id="btn-lang">
+              <img src="../assets/Texturas/UI/ES-EN.svg" alt="">
+              <span id="lang-label">Idioma: ES</span>
+            </button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label data-pi18n="helpName">Ayuda</label>
+          <a class="btn btn-secondary" href="../Index.html#ayuda" style="text-decoration: none; text-align: center;">
+            <img src="../assets/Texturas/UI/Ayuda.svg" alt=""><span data-pi18n="helpView">Ver ayuda</span>
+          </a>
+        </div>
+      </div>
+      <div class="setting-card">
+        <h3><img src="../assets/Texturas/UI/Usuario.svg" alt="" style="width: 20px; height: 20px; object-fit: contain; vertical-align: middle; margin-right: 6px;"><span data-pi18n="pfTitle">Perfiles</span></h3>
+        <div class="setting-group">
+          <label for="startupProfile" data-pi18n="pfStartup">Perfil de inicio</label>
+          <select id="startupProfile"></select>
+        </div>
+        <div class="setting-group">
+          <label data-pi18n="pfManage">Mis perfiles</label>
+          <div id="pfList" class="pool-list"></div>
+        </div>
+        <button class="btn btn-secondary" id="btn-pf-create" style="margin-top: 8px;"><span data-pi18n="pfCreateBtn">Crear perfil</span></button>
+        <p style="color: #8fa2c8; font-size: 0.8rem; margin: 8px 0 0 0;" data-pi18n="pfInfo">Cada perfil guarda sus propios enlaces y categorías. El perfil de inicio se usa al abrir el navegador.</p>
+        <button class="btn btn-secondary" id="btn-pf-reset" style="margin-top: 8px;"><img src="../assets/Texturas/UI/Devolver.svg" alt=""><span data-pi18n="pfReset">Restablecer perfiles</span></button>
+      </div>
+      <div class="setting-card">
+        <h3><img src="../assets/Texturas/UI/Guadar.svg" alt="" style="width: 20px; height: 20px; object-fit: contain; vertical-align: middle; margin-right: 6px;"><span data-pi18n="saveTitle">Guardar</span></h3>
+        <div class="reset-opts" style="justify-content: flex-start; margin-bottom: 12px;">
+          <label><input type="checkbox" id="keepLinks" checked> <span data-pi18n="resetKeepLinks">Mantener enlaces</span></label>
+          <label><input type="checkbox" id="keepWallpaper" checked> <span data-pi18n="resetKeepWall">Mantener fondo</span></label>
+        </div>
+        <div class="save-stack">
+          <button class="btn btn-primary" id="btn-save"><img src="../assets/Texturas/UI/Guadar.svg" alt=""><span data-pi18n="saveBtn">Guardar cambios</span></button>
+          <button class="btn btn-secondary" id="btn-reset"><img src="../assets/Texturas/UI/Devolver.svg" alt=""><span data-pi18n="resetBtn">Restaurar predeterminados</span></button>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" id="btn-export" style="flex: 1;"><span data-pi18n="backupExport">Exportar datos</span></button>
+            <button class="btn btn-secondary" id="btn-import" style="flex: 1;"><span data-pi18n="backupImport">Importar datos</span></button>
+          </div>
+          <input type="file" id="backup-file" accept="application/json,.json" style="display: none;">
+        </div>
+      </div>
+    </div>
+
+    <a href="../Index.html" class="back-btn" data-pi18n="backBtn">← Volver a inicio</a>
+  </div>
+
+  <script src="../utils/dialogs.js"></script>
+  <script src="../src/js/i18n-pages.js"></script>
+  <script src="../src/js/rotate.js"></script>
+  <script src="../src/js/cat-remote.js"></script>
+  <script src="../src/js/profile-cfg.js"></script>
+  <script src="../src/js/config-page.js"></script>
+  <script src="../src/js/config-loader.js"></script>
+  <script src="../src/js/snow.js"></script>
+  <script src="../src/js/modals.js"></script>
+  <script src="../src/js/menu.js"></script>
+</body>
+</html>

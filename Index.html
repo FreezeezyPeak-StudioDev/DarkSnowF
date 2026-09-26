@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DarkSnowF | Inicio</title>
+  <link rel="icon" href="assets/Texturas/Logos/DarkSnowF.png?v=2.7" type="image/png">
+  <link rel="stylesheet" href="src/css/index-styles.css">
+  <style>
+    /* Cursor personalizado único */
+    * {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23000" stroke-width="0.5" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') 4 4, auto !important;
+    }
+    
+    a, button, input, select, .shortcut-card, .sidebar-button, [data-engine] {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23000" stroke-width="0.5" d="M8 3v3h3v2H8v3H6v-3H3V6h3V3h2zm6.5 4L20 12.5 14.5 18H11v-3.5L16.5 9H11V7h9v9h-2v-5.5L12.5 16H11v-2h3.5L9 8.5V11H7V7h7.5z"/></svg>') 8 8, pointer !important;
+    }
+  </style>
+  <link rel="stylesheet" href="src/css/cursor.css">
+  <link rel="stylesheet" href="src/css/dialogs.css">
+</head>
+<body>
+  <!-- Overlay para cerrar sidebar -->
+  <div class="sidebar-overlay" data-sidebar-overlay></div>
+
+  <!-- Sidebar -->
+  <aside data-sidebar>
+    <div>
+      <h3>DarkSnowF</h3>
+      <p style="color: var(--muted);" data-i18n="navMenu">Menú de navegación</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Index.html"><img class="sidebar-icon" src="assets/Texturas/UI/Menu.svg" alt=""><span data-i18n="home">Inicio</span></a></li>
+        <li><button class="sidebar-link" data-wallpaper-btn><img class="sidebar-icon" src="assets/Texturas/UI/EditarFondo.svg" alt=""><span data-i18n="wallpaper">Cambiar fondo</span></button></li>
+        <li><a href="pages/config.html"><img class="sidebar-icon" src="assets/Texturas/UI/Editar.svg" alt=""><span data-i18n="settings">Configuración</span></a></li>
+        <li><a href="pages/credit.html"><img class="sidebar-icon" src="assets/Texturas/UI/Creditos.svg" alt=""><span data-i18n="credits">Créditos</span></a></li>
+        <li><a href="pages/License.html"><img class="sidebar-icon" src="assets/Texturas/UI/Licencia.svg" alt=""><span data-i18n="license">Licencia</span></a></li>
+        <li><button class="sidebar-link" data-help-btn><img class="sidebar-icon" src="assets/Texturas/UI/Ayuda.svg" alt=""><span data-i18n="help">Ayuda</span></button></li>
+        <li><button class="sidebar-link" data-lang-btn><img class="sidebar-icon" src="assets/Texturas/UI/ES-EN.svg" alt=""><span data-lang-label>Idioma: ES</span></button></li>
+      </ul>
+    </nav>
+    <div class="sidebar-social">
+      <p><img class="sidebar-icon" src="assets/Texturas/UI/Usuario.svg" alt="" style="vertical-align: middle; margin-right: 6px;"><span data-i18n="pfTitle">Perfiles</span></p>
+      <div class="side-pf-row" data-side-profiles></div>
+    </div>
+    <div class="sidebar-social">
+      <p data-i18n="networks">Redes</p>
+      <div class="social-row">
+        <a href="https://www.youtube.com/@FreezeezyPeak" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000"/><path d="M10 9.5v5l4.5-2.5L10 9.5z" fill="#fff"/></svg>
+        </a>
+        <a href="https://github.com/FreezeezyPeak-StudioDev" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="#e8eef8"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.54 2.87 8.39 6.84 9.75.5.1.68-.22.68-.49 0-.24-.01-1.04-.02-1.89-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.93.86.09-.67.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.04 1.03-2.76-.1-.26-.45-1.3.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.46.1 2.72.64.72 1.03 1.64 1.03 2.76 0 3.94-2.34 4.81-4.57 5.07.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.2 10.2 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>
+        </a>
+        <a href="https://addons.mozilla.org/es-ES/firefox/user/20170408/" target="_blank" rel="noopener" aria-label="Firefox Add-ons">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#FF7139"/><circle cx="12" cy="12" r="10" fill="none" stroke="#FF7139" stroke-width="0"/><path d="M12 2a10 10 0 0 0-3.9.8c2.5.6 3.4 2.4 3.1 4.3-.3 2.1-2 3.4-2.3 5.5-.3 2.3 1.2 4.6 3.1 5.9a10 10 0 0 0 0-16.5z" fill="#FFBD4F"/><circle cx="12" cy="12" r="4.5" fill="#0060DF"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" stroke-width="1" opacity="0.6"/></svg>
+        </a>
+        <a href="https://gitlab.com/freezeezypeak.studiodev" target="_blank" rel="noopener" aria-label="GitLab">
+          <svg viewBox="0 0 24 24" fill="none"><polygon points="12,2 15,8 20,6 21,13 18,19 12,22 6,19 3,13 4,6 9,8" fill="#FC6D26"/><polygon points="12,9 15,12 12,17 9,12" fill="#fff"/></svg>
+        </a>
+        <a href="#" data-coming-soon="itch" aria-label="itch.io">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="11" rx="4" fill="#FA5C5C"/><circle cx="9" cy="12.5" r="1.6" fill="#fff"/><circle cx="15" cy="12.5" r="1.6" fill="#fff"/></svg>
+        </a>
+        <a href="#" data-coming-soon="web" aria-label="Mi web">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#2E9BD6"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="#fff" stroke-width="1.6" fill="none"/><line x1="3.5" y1="12" x2="20.5" y2="12" stroke="#fff" stroke-width="1.6"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Botón para abrir sidebar -->
+  <button class="sidebar-button" data-sidebar-toggle aria-label="Abrir menú"><img src="assets/Texturas/UI/Menu.svg" alt="Menú"></button>
+
+  <!-- Reloj en esquina -->
+  <div class="clock-corner">
+    <div data-clock>00:00:00</div>
+  </div>
+
+  <!-- Contenido principal -->
+  <main class="main-container">
+    <!-- Logo centrado -->
+    <div class="logo-container">
+      <img src="assets/Texturas/Logos/DarkSnowF.png?v=1.5" alt="Logo DarkSnowF">
+      <h1>DarkSnowF</h1>
+      <div class="season-greet" data-season style="display: none;"></div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <span class="search-icon">O</span>
+        <input 
+          type="search" 
+          class="search-input" 
+          data-search 
+          placeholder="Buscar o introducir dirección" 
+          data-i18n-ph="searchPh"
+          autocomplete="off" 
+          spellcheck="false"
+        >
+        <div class="search-engine-selector">
+          <button class="search-engine-btn" data-engine-toggle>
+            <span data-engine-name>DuckDuckGo</span>
+            <span>▼</span>
+          </button>
+          <div class="search-engine-dropdown" data-engine-dropdown>
+            <div class="search-engine-option active" data-engine="google">
+              <span>G</span>
+              <span>Google</span>
+            </div>
+            <div class="search-engine-option" data-engine="bing">
+              <span>B</span>
+              <span>Bing</span>
+            </div>
+            <div class="search-engine-option" data-engine="duckduckgo">
+              <span>D</span>
+              <span>DuckDuckGo</span>
+            </div>
+            <div class="search-engine-option" data-engine="chatgpt">
+              <span>C</span>
+              <span>ChatGPT</span>
+            </div>
+            <div class="search-engine-option" data-engine="wikipedia">
+              <span>W</span>
+              <span>Wikipedia ES</span>
+            </div>
+            <div class="search-engine-option" data-engine="perplexity">
+              <span>P</span>
+              <span>Perplexity IA</span>
+            </div>
+            <div class="search-engine-option" data-engine="claude">
+              <span>Cl</span>
+              <span>Claude</span>
+            </div>
+            <div class="search-engine-option" data-engine="mistral">
+              <span>Mi</span>
+              <span>Mistral</span>
+            </div>
+            <div class="search-engine-option" data-engine="gemini">
+              <span>Ge</span>
+              <span>Gemini</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categorías de accesos rápidos -->
+    <div class="cats-bar" data-cats></div>
+
+    <!-- Accesos rápidos -->
+    <div class="shortcuts-container" data-shortcuts></div>
+  </main>
+
+  <!-- Modal para agregar/editar acceso rápido -->
+  <div class="modal-overlay" data-modal-overlay>
+    <div class="modal">
+      <h2 data-modal-title data-i18n="modalAdd">Agregar acceso rápido</h2>
+      <form class="modal-form" data-shortcut-form>
+        <div class="form-group">
+          <label for="shortcut-url" data-i18n="urlLabel">URL *</label>
+          <input 
+            type="url" 
+            id="shortcut-url" 
+            name="url" 
+            placeholder="https://ejemplo.com" 
+            required
+          >
+          <small data-i18n="urlHint">La URL completa del sitio web</small>
+        </div>
+        <div class="form-group">
+          <label for="shortcut-name" data-i18n="nameLabel">Nombre (opcional)</label>
+          <input 
+            type="text" 
+            id="shortcut-name" 
+            name="name" 
+            placeholder="Se detectará automáticamente" 
+            data-i18n-ph="namePh"
+          >
+          <small data-i18n="nameHint">Si no lo escribes, se obtendrá del sitio web</small>
+        </div>
+        <div class="form-group">
+          <label for="shortcut-cat" data-i18n="catLabel">Categoría</label>
+          <select id="shortcut-cat"></select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" data-modal-cancel><img class="btn-icon" src="assets/Texturas/UI/Cancelar.svg" alt=""><span data-i18n="cancelBtn">Cancelar</span></button>
+          <button type="submit" class="modal-btn primary"><span data-i18n="saveBtn">Guardar</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para cambiar fondo de pantalla -->
+  <div class="modal-overlay" data-wallpaper-modal>
+    <div class="modal">
+      <h2 data-i18n="wpTitle">Cambiar fondo de pantalla</h2>
+      <form class="modal-form" data-wallpaper-form>
+        <div class="form-group">
+          <label data-i18n="wpPreset">Fondos predeterminados</label>
+          <select id="wallpaper-preset" data-wallpaper-preset>
+            <option value="" data-i18n="wpSelect">Seleccionar fondo...</option>
+            <option value="default" data-i18n="wpDefault">Degradado oscuro (predeterminado)</option>
+            <option value="assets/Texturas/backgrounds/noche-montanas.jpg" data-i18n="wpMountains">Montañas nocturnas</option>
+            <option value="assets/Texturas/backgrounds/aurora.jpg" data-i18n="wpAurora">Aurora boreal</option>
+            <option value="assets/Texturas/backgrounds/montanas-nevadas.jpg" data-i18n="wpSnow">Montañas nevadas</option>
+            <option value="assets/Texturas/backgrounds/paisaje-nevado.jpg" data-i18n="wpSpace">Paisaje nevado</option>
+            <option value="assets/Texturas/backgrounds/tierra-espacio.jpg" data-i18n="wpEarth">Tierra desde el espacio</option>
+            <option value="assets/Texturas/backgrounds/noche-estrellas.jpg" data-i18n="wpStarry">Noche estrellada</option>
+            <option value="assets/Texturas/backgrounds/lago-montana.jpg" data-i18n="wpLake">Lago y montaña</option>
+            <option value="assets/Texturas/backgrounds/bmw-m4.jpg" data-i18n="wpBmw">BMW M4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wallpaper-url" data-i18n="wpUrlLabel">O introduce una URL</label>
+          <input 
+            type="url" 
+            id="wallpaper-url" 
+            name="url" 
+            placeholder="https://ejemplo.com/imagen.jpg"
+          >
+          <small data-i18n="wpUrlHint">URL de una imagen desde internet</small>
+        </div>
+        <div class="form-group">
+          <label data-i18n="wpUpload">O sube desde tu PC</label>
+          <input 
+            type="file" 
+            id="wallpaper-file" 
+            accept="image/*"
+            style="display: none;"
+          >
+          <button type="button" class="file-btn" data-wallpaper-file-btn data-i18n="wpChooseFile">
+            Seleccionar archivo
+          </button>
+          <small id="file-name"></small>
+        </div>
+        <div class="form-group">
+          <label data-i18n="wpSize">Tamaño de la imagen</label>
+          <select id="wallpaper-size" data-wallpaper-size>
+            <option value="cover" data-i18n="wpCover">Cubrir pantalla (predeterminado)</option>
+            <option value="contain" data-i18n="wpContain">Ajustar a pantalla</option>
+            <option value="auto" data-i18n="wpOriginal">Tamaño original</option>
+            <option value="custom" data-i18n="wpCustom">Personalizado</option>
+          </select>
+        </div>
+        <div class="form-group" id="custom-size-group" style="display: none;">
+          <label data-i18n="wpCustomSize">Tamaño personalizado (ancho x alto en px)</label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input 
+              type="number" 
+              id="wallpaper-width" 
+              placeholder="700" 
+              min="100" 
+              max="5000"
+              style="flex: 1;"
+            >
+            <span style="color: var(--text);">×</span>
+            <input 
+              type="number" 
+              id="wallpaper-height" 
+              placeholder="200" 
+              min="100" 
+              max="5000"
+              style="flex: 1;"
+            >
+          </div>
+          <small data-i18n="wpCustomHint">Ejemplo: 700 × 200 px (predeterminado: 1920 × 1080)</small>
+        </div>
+        <div class="form-group" id="preview-container" style="display: none;">
+          <label data-i18n="wpPreview">Vista previa</label>
+          <div class="wallpaper-preview" data-wallpaper-preview></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" data-wallpaper-reset><img class="btn-icon" src="assets/Texturas/UI/Devolver.svg" alt=""><span data-i18n="wpReset">Restaurar predeterminado</span></button>
+          <button type="button" class="modal-btn secondary" data-wallpaper-cancel><img class="btn-icon" src="assets/Texturas/UI/Cancelar.svg" alt=""><span data-i18n="cancelBtn">Cancelar</span></button>
+          <button type="submit" class="modal-btn primary"><span data-i18n="wpApply">Aplicar</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de ayuda -->
+  <div class="modal-overlay" data-help-modal>
+    <div class="modal">
+      <h2 data-i18n="helpTitle">Ayuda</h2>
+      <div class="help-grid">
+        <div class="help-item" data-i18n="helpH1">1. Buscador: escribe y pulsa Enter; cambia de motor arriba.</div>
+        <div class="help-item" data-i18n="helpH2">2. Accesos: + agrega, arrastra para ordenar, edita o borra.</div>
+        <div class="help-item" data-i18n="helpH3">3. Categorías: pestañas, flechas &lt; &gt;, suelta encima, crea o borra.</div>
+        <div class="help-item" data-i18n="helpH4">4. Perfiles: cambia en menú, ajustes o popup; cada uno sus enlaces.</div>
+        <div class="help-item" data-i18n="helpH5">5. Fondo: predefinidos, URL o archivo; pueden rotar; pregunta por la nieve.</div>
+        <div class="help-item" data-i18n="helpH6">6. Reloj: internet o PC, zona horaria y formato en ajustes.</div>
+        <div class="help-item" data-i18n="helpH7">7. Idioma: cambia ES/EN desde el menú o ajustes.</div>
+        <div class="help-item" data-i18n="helpH8">8. Ajustes: guarda los cambios y recarga la ventana.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" data-help-guide><span data-i18n="helpGuide">Ver guía inicial</span></button>
+        <button type="button" class="modal-btn primary" data-help-close><span data-i18n="helpClose">Entendido</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bienvenida al instalar: tema, motor y funciones -->
+  <div class="modal-overlay" data-onboard hidden>
+    <div class="modal ob-modal">
+      <h2 data-i18n="obTitle">Bienvenido a DarkSnowF</h2>
+      <div data-ob-step="1">
+        <p class="ob-sub" data-i18n="obStep1">1. Elige tu tema recomendado</p>
+        <div class="ob-themes">
+          <div class="ob-theme">
+            <span class="ob-swatch ob-dark"></span>
+            <strong data-i18n="obDef">Por defecto (recomendado)</strong>
+            <small data-i18n="obDefDesc">El aspecto actual de DarkSnowF.</small>
+            <button type="button" class="modal-btn primary ob-choose" data-ob-theme="dark"><span data-i18n="obChoose">Escojo este</span></button>
+          </div>
+          <div class="ob-theme">
+            <span class="ob-swatch ob-trueblack"></span>
+            <strong data-i18n="obOsc">Oscuro</strong>
+            <small data-i18n="obOscDesc">Negro profundo, poco blanco.</small>
+            <button type="button" class="modal-btn primary ob-choose" data-ob-theme="oscuro"><span data-i18n="obChoose">Escojo este</span></button>
+          </div>
+          <div class="ob-theme">
+            <span class="ob-swatch ob-light"></span>
+            <strong data-i18n="obLight">Claro</strong>
+            <small data-i18n="obLightDesc">Más luminoso: blancos y grises claros.</small>
+            <button type="button" class="modal-btn primary ob-choose" data-ob-theme="claro"><span data-i18n="obChoose">Escojo este</span></button>
+          </div>
+        </div>
+        <p class="ob-note" data-i18n="obThemeLater">Podrás cambiarlo cuando quieras desde Ajustes.</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" data-ob-skip-all><span data-i18n="obSkipAll">Omitir todo</span></button>
+        </div>
+      </div>
+      <div data-ob-step="2" hidden>
+        <p class="ob-sub" data-i18n="obStep2">2. Elige tu motor de búsqueda</p>
+        <div class="ob-engines" data-ob-engines></div>
+        <p class="ob-note" data-i18n="obEngineRec">Se recomienda DuckDuckGo: mayor seguridad y privacidad.</p>
+        <p class="ob-note" data-i18n="obEngineLater">Puedes cambiarlo más adelante desde el selector del buscador.</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" data-ob-skip><span data-i18n="obSkip">Omitir</span></button>
+          <button type="button" class="modal-btn primary" data-ob-next><span data-i18n="obContinue">Continuar</span></button>
+        </div>
+      </div>
+      <div data-ob-step="3" hidden>
+        <p class="ob-sub" data-i18n="obStep3">3. Qué puede hacer</p>
+        <div class="help-grid">
+          <div class="help-item" data-i18n="obF1"></div>
+          <div class="help-item" data-i18n="obF2"></div>
+          <div class="help-item" data-i18n="obF3"></div>
+          <div class="help-item" data-i18n="obF4"></div>
+          <div class="help-item" data-i18n="obF5"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn primary" data-ob-finish><span data-i18n="obStart">Empezar</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="utils/dialogs.js"></script>
+  <script src="src/js/clock.js"></script>
+  <script src="src/js/cat-remote.js"></script>
+  <script src="src/js/profile-cfg.js"></script>
+  <script src="src/js/config-loader.js"></script>
+  <script src="src/js/i18n.js"></script>
+  <script src="src/js/snow.js"></script>
+  <script src="src/js/festive.js"></script>
+  <script src="src/js/rotate.js"></script>
+  <script src="src/js/index-app.js"></script>
+  <script src="src/js/search-suggest.js"></script>
+  <script src="src/js/onboarding.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+/* Cursor compartido para Index y paginas internas.
+ * Sin mano del sistema: todo usa la flecha propia (los gatos la cubren
+ * con la suya cuando el pack está activo). */
+* {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23020b12" stroke-width="1.25" stroke-linejoin="round" d="M4 3l13 8-6 1.4L8 19z"/></svg>') 3 3, auto !important;
+}
+
+a,
+a:hover,
+a:active,
+a:focus,
+button,
+button:hover,
+button:active,
+button:focus,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+input[type="color"],
+input[type="file"],
+select,
+select:hover,
+select:active,
+label,
+.btn,
+.btn:hover,
+.btn:active,
+.shortcut-card,
+.shortcut-card:hover,
+.shortcut-card:active,
+.sidebar-button,
+.sidebar-button:hover,
+[data-engine],
+[data-engine]:hover,
+[role="button"],
+[role="button"]:hover,
+[role="button"]:active {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23020b12" stroke-width="1.25" stroke-linejoin="round" d="M4 3l13 8-6 1.4L8 19z"/></svg>') 3 3, auto !important;
+}
+
+input[type="text"],
+input[type="search"],
+input:not([type]),
+textarea {
+  cursor: text !important;
+}
+
+button:active,
+a:active,
+.btn:active,
+.shortcut-card:active,
+[role="button"]:active {
+  transform: translateY(1px) scale(0.99);
+}

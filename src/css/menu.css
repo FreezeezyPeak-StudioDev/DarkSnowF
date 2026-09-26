@@ -1,0 +1,217 @@
+/* menu.css - Botón de menú compartido para páginas secundarias.
+   Paleta: negro, blanco, gris, azul oscuro, azul claro. */
+
+.shared-menu-btn {
+  position: fixed;
+  left: 15px;
+  bottom: 15px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  padding: 0;
+}
+
+.shared-menu-btn:hover {
+  background: rgba(0, 51, 102, 0.2);
+  border-color: #0066B2;
+  transform: scale(1.05);
+}
+
+.shared-menu-btn {
+  transition: all 0.3s ease;
+}
+
+.shared-menu-btn img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.shared-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: none;
+}
+
+.shared-menu-overlay.active {
+  display: block;
+}
+
+.shared-menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  max-width: 82vw;
+  height: 100vh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(10, 15, 25, 0.98);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1002;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  padding: 20px 15px;
+  box-sizing: border-box;
+}
+
+.shared-menu-panel.active {
+  transform: translateX(0);
+}
+
+.shared-menu-panel h3 {
+  margin: 0 0 4px 0;
+  color: #0066B2;
+  font-size: 1.1rem;
+  padding-right: 36px;
+}
+
+.shared-back {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.shared-back:hover {
+  background: rgba(0, 51, 102, 0.3);
+  border-color: #0066B2;
+}
+
+.shared-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.shared-menu-panel p {
+  font-size: 0.85rem;
+  color: #9aa7c4;
+  margin: 0 0 16px 0;
+}
+
+.shared-menu-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shared-menu-panel a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #e8eef8;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+}
+
+.shared-menu-panel a:hover {
+  background: rgba(0, 51, 102, 0.1);
+  border-color: rgba(0, 51, 102, 0.3);
+}
+
+.shared-menu-panel a.active {
+  border-color: rgba(0, 102, 178, 0.5);
+  background: rgba(0, 51, 102, 0.12);
+}
+
+.shared-menu-panel a.active span::after {
+  content: ' <';
+  color: #0066B2;
+  font-weight: 700;
+}
+
+.shared-menu-panel a img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.shared-menu-panel button.shared-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #e8eef8;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.shared-menu-panel button.shared-link:hover {
+  background: rgba(0, 51, 102, 0.1);
+  border-color: rgba(0, 51, 102, 0.3);
+}
+
+.shared-menu-panel button.shared-link img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.shared-social {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shared-social p {
+  font-size: 0.8rem;
+  margin: 0 0 10px 0;
+}
+
+.shared-social-row {
+  display: grid;
+  grid-template-columns: repeat(3, 38px);
+  gap: 10px;
+  justify-content: start;
+}
+
+.shared-social-row a {
+  width: 38px;
+  height: 38px;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.shared-social-row svg {
+  width: 22px;
+  height: 22px;
+}

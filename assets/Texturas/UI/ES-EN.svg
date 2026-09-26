@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Burbuja de diálogo más grande y visible -->
+  <path d="M10 20 Q10 15 15 15 L85 15 Q90 15 90 20 L90 65 Q90 70 85 70 L55 70 L45 85 L40 70 L15 70 Q10 70 10 65 Z"
+        fill="white" stroke="#1a1a1a" stroke-width="5" stroke-linejoin="round"/>
+  
+  <!-- Icono de idioma: dos letras grandes -->
+  <text x="30" y="52" 
+        font-family="Arial, sans-serif" 
+        font-size="22" 
+        font-weight="bold" 
+        fill="#1a1a1a" 
+        text-anchor="middle">ES</text>
+  
+  <!-- Separador vertical -->
+  <line x1="50" y1="30" x2="50" y2="60" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+  
+  <text x="70" y="52" 
+        font-family="Arial, sans-serif" 
+        font-size="22" 
+        font-weight="bold" 
+        fill="#1a1a1a" 
+        text-anchor="middle">EN</text>
+</svg>

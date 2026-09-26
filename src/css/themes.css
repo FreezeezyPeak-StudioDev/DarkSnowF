@@ -1,0 +1,253 @@
+/**
+ * themes.css - Control de temas visuales
+ * Define sistema base de temas
+ */
+
+:root {
+  /* Colores base (ya en Index.html) */
+  --bg: #070b12;
+  --surface: rgba(18, 24, 36, 0.92);
+  --text: #e8eef8;
+  --muted: #8fa2c8;
+  --accent: #0066B2;
+  --accent-2: #8b7cff;
+  --border: rgba(86, 131, 255, 0.12);
+  --success: #4ecdc4;
+  --warning: #f7b731;
+  --danger: #ff6b9d;
+  --info: #0066B2;
+}
+
+/* Tema base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Botones base */
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Campos base */
+input, select, textarea {
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+/* Enlaces base */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-2);
+}
+
+/* Códigos de estado */
+.success {
+  color: var(--success);
+}
+
+.warning {
+  color: var(--warning);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.info {
+  color: var(--info);
+}
+
+/* Efectos de enfoque */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Selección de texto */
+::selection {
+  background: rgba(0, 51, 102, 0.3);
+  color: #f5fbff;
+}
+
+/* Utilidades */
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+/* Espaciados */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+
+.px-1 { padding: 0 0.5rem; }
+.px-2 { padding: 0 1rem; }
+.px-3 { padding: 0 1.5rem; }
+.px-4 { padding: 0 2rem; }
+
+.py-1 { padding: 0.5rem 0; }
+.py-2 { padding: 1rem 0; }
+.py-3 { padding: 1.5rem 0; }
+.py-4 { padding: 2rem 0; }
+
+/* Flexbox */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Cartas */
+.card {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Insignias */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(0, 51, 102,0.2);
+  color: var(--accent);
+}
+
+.badge.success {
+  background: rgba(78,205,196,0.2);
+  color: var(--success);
+}
+
+.badge.warning {
+  background: rgba(247,183,49,0.2);
+  color: var(--warning);
+}
+
+.badge.danger {
+  background: rgba(255,107,157,0.2);
+  color: var(--danger);
+}
+
+/* Estados */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: 0.5em;
+  border: 2px solid rgba(0,51,102,0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

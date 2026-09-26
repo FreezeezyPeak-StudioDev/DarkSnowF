@@ -1,0 +1,135 @@
+/**
+ * oscuro.css - Tema Oscuro negro profundo.
+ * Sobrescribe los selectores reales del home (carga al final).
+ */
+
+:root {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-secondary: #0a0a0c;
+  --surface: rgba(0, 0, 0, 0.94);
+  --surface-hover: rgba(22, 22, 28, 0.96);
+  --text: #f2f5fa;
+  --text-secondary: #a8b2c8;
+  --muted: #a8b2c8;
+  --accent: #4da3ff;
+  --accent-2: #77b9ff;
+  --accent-3: #a9d1ff;
+  --border: rgba(255, 255, 255, 0.14);
+  --border-hover: rgba(255, 255, 255, 0.3);
+}
+
+body {
+  background: linear-gradient(180deg, #050506 0%, #000000 50%, #0a0a0c 100%);
+  color: var(--text);
+}
+
+/* Buscador */
+.search-wrapper {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.search-engine-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.search-engine-dropdown {
+  background: rgba(0, 0, 0, 0.98);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.search-engine-option:hover {
+  background: rgba(77, 163, 255, 0.15);
+}
+
+.search-engine-option.active {
+  background: rgba(77, 163, 255, 0.2);
+}
+
+.search-suggest {
+  background: rgba(0, 0, 0, 0.98);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Accesos y categorías */
+.shortcut-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.shortcut-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.shortcut-card.add-new {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.cat-tab {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.cat-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Barra lateral */
+[data-sidebar] {
+  background: rgba(0, 0, 0, 0.98);
+  border-right-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-sidebar] a, [data-sidebar] button.sidebar-link {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.sidebar-button {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Ventanas */
+.modal {
+  background: rgba(0, 0, 0, 0.98);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #4da3ff, #2b7cd3);
+  color: #000;
+  border: none;
+}
+
+.modal-btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.modal-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.form-group input, .form-group select {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--text);
+}
+
+.help-item {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Encabezados */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
+
+.modal h2, [data-sidebar] h3 {
+  color: var(--accent);
+}

@@ -1,0 +1,192 @@
+/**
+ * claro.css - Tema Claro luminoso (blancos y grises claros).
+ * Sobrescribe los selectores reales del home (carga al final).
+ */
+
+:root {
+  color-scheme: light;
+  --bg: #e9edf3;
+  --bg-secondary: #dbe2ec;
+  --surface: rgba(255, 255, 255, 0.94);
+  --surface-hover: rgba(240, 244, 249, 0.98);
+  --text: #1a2332;
+  --text-secondary: #5a6b85;
+  --muted: #5a6b85;
+  --accent: #0066B2;
+  --accent-2: #004d88;
+  --accent-3: #003a66;
+  --border: rgba(0, 102, 178, 0.25);
+  --border-hover: rgba(0, 102, 178, 0.5);
+}
+
+body {
+  background: linear-gradient(180deg, #f4f6fa 0%, #e9edf3 50%, #dbe2ec 100%);
+  color: var(--text);
+}
+
+/* Sin sombras de texto sobre fondo claro */
+.main-container h1,
+.main-container h2,
+.main-container h3,
+.main-container p,
+.main-container label,
+.main-container small,
+.main-container span,
+.main-container a,
+.main-container button,
+.shortcut-title,
+.search-input::placeholder,
+[data-sidebar] h3,
+[data-sidebar] p,
+[data-sidebar] a,
+[data-sidebar] button,
+.clock-corner [data-clock],
+.modal h2,
+.modal label,
+.modal small,
+.modal p {
+  text-shadow: none;
+}
+
+/* Buscador */
+.search-wrapper {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 102, 178, 0.3);
+}
+
+.search-input {
+  color: var(--text);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-engine-btn {
+  background: rgba(0, 102, 178, 0.08);
+  border-color: rgba(0, 102, 178, 0.3);
+  color: var(--text);
+}
+
+.search-engine-btn:hover {
+  background: rgba(0, 102, 178, 0.15);
+}
+
+.search-engine-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 102, 178, 0.3);
+}
+
+.search-engine-option {
+  color: var(--text);
+}
+
+.search-engine-option:hover {
+  background: rgba(0, 102, 178, 0.1);
+}
+
+.search-engine-option.active {
+  background: rgba(0, 102, 178, 0.15);
+}
+
+.search-suggest {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 102, 178, 0.3);
+}
+
+.search-suggest button {
+  color: var(--text);
+}
+
+/* Accesos y categorías */
+.shortcut-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 102, 178, 0.25);
+}
+
+.shortcut-card:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--accent);
+}
+
+.shortcut-card.add-new {
+  border-color: rgba(0, 102, 178, 0.4);
+}
+
+.shortcut-title {
+  color: var(--text);
+}
+
+.cat-tab {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 102, 178, 0.25);
+  color: var(--text);
+}
+
+.cat-tab:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Barra lateral */
+[data-sidebar] {
+  background: rgba(244, 246, 250, 0.98);
+  border-right-color: rgba(0, 102, 178, 0.25);
+}
+
+[data-sidebar] h3, [data-sidebar] p, [data-sidebar] a, [data-sidebar] button {
+  text-shadow: none;
+}
+
+[data-sidebar] a, [data-sidebar] button.sidebar-link {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 102, 178, 0.2);
+  color: var(--text);
+}
+
+.sidebar-button {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 102, 178, 0.3);
+}
+
+/* Ventanas */
+.modal {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 102, 178, 0.3);
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #0066B2, #004d88);
+  color: #ffffff;
+  border: none;
+}
+
+.modal-btn.secondary {
+  background: rgba(0, 102, 178, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(0, 102, 178, 0.3);
+}
+
+.modal-btn.secondary:hover {
+  background: rgba(0, 102, 178, 0.15);
+}
+
+.form-group label {
+  color: var(--text);
+}
+
+.form-group input, .form-group select {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 102, 178, 0.3);
+  color: var(--text);
+}
+
+.help-item {
+  background: rgba(0, 102, 178, 0.06);
+  border-color: rgba(0, 102, 178, 0.2);
+  color: var(--text);
+}
+
+/* Encabezados */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--accent-3);
+}
