@@ -1,7 +1,11 @@
 /**
- * profile-cfg.js - Ajustes por perfil (tema y motor de búsqueda).
- * Cada perfil guarda lo suyo en `ds_profile_cfg`. Lo global viejo se migra
- * una vez al perfil activo y sirve de reserva.
+ * Ajustes por perfil de DarkSnowF (tema y motor de búsqueda).
+ *
+ * Cada perfil conserva su tema y motor en `ds_profile_cfg`. La primera
+ * ejecución migra los valores globales previos al perfil activo para
+ * no perder la configuración existente.
+ *
+ * @module PerfilConfig
  */
 (function profileCfg() {
   const KEY = 'ds_profile_cfg';

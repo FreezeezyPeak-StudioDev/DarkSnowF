@@ -501,11 +501,42 @@
         <div class="save-stack">
           <button class="btn btn-primary" id="btn-save"><img src="../assets/Texturas/UI/Guadar.svg" alt=""><span data-pi18n="saveBtn">Guardar cambios</span></button>
           <button class="btn btn-secondary" id="btn-reset"><img src="../assets/Texturas/UI/Devolver.svg" alt=""><span data-pi18n="resetBtn">Restaurar predeterminados</span></button>
+          <hr style="border: none; border-top: 1px solid rgba(0, 51, 102, 0.15); margin: 6px 0;">
+          <div class="setting-group" style="margin-bottom: 6px;">
+            <label for="exportProfile" data-pi18n="exportProfileLabel">Perfil a exportar</label>
+            <select id="exportProfile"></select>
+          </div>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #8fa2c8;">
+            <input type="checkbox" id="exportGraphic" checked style="width: auto;">
+            <span data-pi18n="exportGraphicLabel">Incluir categorías, tema y fondo</span>
+          </label>
           <div style="display: flex; gap: 10px;">
-            <button class="btn btn-secondary" id="btn-export" style="flex: 1;"><span data-pi18n="backupExport">Exportar datos</span></button>
-            <button class="btn btn-secondary" id="btn-import" style="flex: 1;"><span data-pi18n="backupImport">Importar datos</span></button>
+            <button class="btn btn-secondary" id="btn-export-txt" style="flex: 1;"><span data-pi18n="backupExportTxt">Exportar TXT</span></button>
+            <button class="btn btn-secondary" id="btn-export" style="flex: 1;"><span data-pi18n="backupExport">Exportar JSON</span></button>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" id="btn-import" style="flex: 1;"><span data-pi18n="backupImport">Importar JSON</span></button>
           </div>
           <input type="file" id="backup-file" accept="application/json,.json" style="display: none;">
+          <div id="import-panel" style="display: none; flex-direction: column; gap: 8px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="setting-group" style="margin: 0;">
+              <label data-pi18n="importProfilesLabel">Perfiles del archivo</label>
+              <div id="import-list" class="pool-list"></div>
+            </div>
+            <div class="setting-group" style="margin: 0;">
+              <label for="importDest" data-pi18n="importDestLabel">Perfil destino</label>
+              <select id="importDest"></select>
+            </div>
+            <div class="setting-group" style="margin: 0;">
+              <label data-pi18n="importModeLabel">Modo de importación</label>
+              <select id="importMode">
+                <option value="fusionar" data-pi18n="importModeMerge">Fusionar (sumar sin borrar)</option>
+                <option value="reemplazar" data-pi18n="importModeReplace">Reemplazar (sustituir destino)</option>
+                <option value="nuevo" data-pi18n="importModeNew">Crear como perfil nuevo</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btn-import-confirm"><span data-pi18n="importConfirm">Aplicar importación</span></button>
+          </div>
         </div>
       </div>
     </div>
@@ -514,6 +545,9 @@
   </div>
 
   <script src="../utils/dialogs.js"></script>
+  <script src="../src/js/almacen.js"></script>
+  <script src="../src/js/iconos.js"></script>
+  <script src="../src/js/respaldo.js"></script>
   <script src="../src/js/i18n-pages.js"></script>
   <script src="../src/js/rotate.js"></script>
   <script src="../src/js/cat-remote.js"></script>

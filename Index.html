@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DarkSnowF | Inicio</title>
-  <link rel="icon" href="assets/Texturas/Logos/DarkSnowF.png?v=2.7" type="image/png">
+  <link rel="icon" href="assets/Texturas/Logos/DarkSnowF.png?v=1.1.0" type="image/png">
   <link rel="stylesheet" href="src/css/index-styles.css">
   <style>
     /* Cursor personalizado único */
@@ -81,7 +81,7 @@
   <main class="main-container">
     <!-- Logo centrado -->
     <div class="logo-container">
-      <img src="assets/Texturas/Logos/DarkSnowF.png?v=1.5" alt="Logo DarkSnowF">
+      <img src="assets/Texturas/Logos/DarkSnowF.png?v=1.1.0" alt="Logo DarkSnowF">
       <h1>DarkSnowF</h1>
       <div class="season-greet" data-season style="display: none;"></div>
     </div>
@@ -183,6 +183,30 @@
         <div class="form-group">
           <label for="shortcut-cat" data-i18n="catLabel">Categoría</label>
           <select id="shortcut-cat"></select>
+        </div>
+        <div class="form-group">
+          <label for="shortcut-icon-url" data-i18n="iconLabel">Icono personalizado (opcional)</label>
+          <input
+            type="url"
+            id="shortcut-icon-url"
+            name="iconUrl"
+            placeholder="https://ejemplo.com/icono.png"
+            data-i18n-ph="iconPh"
+          >
+          <small data-i18n="iconHint">Pega la URL de una imagen o sube una desde tu PC. Vacío = automático.</small>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <img id="shortcut-icon-preview" alt="" style="width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
+            <button type="button" class="modal-btn secondary" data-icon-file-btn style="flex: 1;">
+              <span data-i18n="iconFileBtn">Subir imagen</span>
+            </button>
+            <button type="button" class="modal-btn secondary" data-icon-auto-btn>
+              <span data-i18n="iconAutoBtn">Automático</span>
+            </button>
+          </div>
+          <input type="file" id="shortcut-icon-file" accept="image/*" style="display: none;">
+          <small id="shortcut-icon-name"></small>
         </div>
         <div class="modal-actions">
           <button type="button" class="modal-btn secondary" data-modal-cancel><img class="btn-icon" src="assets/Texturas/UI/Cancelar.svg" alt=""><span data-i18n="cancelBtn">Cancelar</span></button>
@@ -359,6 +383,8 @@
   </div>
 
   <script src="utils/dialogs.js"></script>
+  <script src="src/js/almacen.js"></script>
+  <script src="src/js/iconos.js"></script>
   <script src="src/js/clock.js"></script>
   <script src="src/js/cat-remote.js"></script>
   <script src="src/js/profile-cfg.js"></script>

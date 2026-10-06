@@ -1,5 +1,14 @@
 ﻿/**
- * config-page.js - Lógica de la página de opciones (MV3, sin manejadores en línea).
+ * Página de opciones de DarkSnowF.
+ *
+ * Gestiona apariencia, fondo, componentes, perfiles, guardado y
+ * respaldo de enlaces (TXT/JSON). Cada cambio se persiste en
+ * `localStorage` y se verifica para evitar pérdidas. Los perfiles
+ * admiten avatar personalizado (URL o archivo) y los respaldos
+ * permiten elegir un perfil o todos, con modos fusionar, reemplazar
+ * o crear como perfil nuevo.
+ *
+ * @module ConfigPage
  */
 
 function applyLocalSettings() {
@@ -33,10 +42,31 @@ function applyLocalSettings() {
   }
 }
 
+/**
+ * Cambia un ajuste y lo persiste con verificación.
+ * @param {string} key Clave del ajuste.
+ * @param {*} value Valor a guardar.
+ * @returns {boolean} Verdadero si se verificó el guardado.
+ */
 function changeSetting(key, value) {
-  const settings = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
+  let settings = {};
+  try {
+    settings = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}') || {};
+  } catch (e) {
+    settings = {};
+  }
   settings[key] = value;
-  localStorage.setItem('darkSnowFConfig', JSON.stringify(settings));
+  let ok = false;
+  try {
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) {
+      ok = DSAlmacen.guardarJSON('darkSnowFConfig', settings);
+    } else {
+      localStorage.setItem('darkSnowFConfig', JSON.stringify(settings));
+      ok = true;
+    }
+  } catch (e) {
+    ok = false;
+  }
   // El tema es por perfil: se guarda también en su perfil activo.
   if (key === 'theme') {
     try {
@@ -47,7 +77,7 @@ function changeSetting(key, value) {
   }
 
   applyLocalSettings();
-  console.log('Configuración guardada:', key, '=', value);
+  return ok;
 }
 
 async function saveSettings() {
@@ -396,18 +426,34 @@ function bindControls() {
     });
   };
 
-  // Perfiles: inicio + lista con cambiar/renombrar/eliminar
+  // Perfiles: inicio + lista con.avatar, cambiar, renombrar y eliminar.
+  // Cada perfil conserva la forma `{ id, name, icon }`; `icon` vacío usa el avatar base.
   const getPf = () => {
     try {
+      if (typeof DSAlmacen !== 'undefined' && DSAlmacen.obtenerPerfiles) {
+        return DSAlmacen.obtenerPerfiles().map((p) => ({ id: p.id, name: p.nombre, icon: p.icono || '' }));
+      }
       const p = JSON.parse(localStorage.getItem('profiles') || '[]');
-      if (Array.isArray(p) && p.length > 0) return p;
+      if (Array.isArray(p) && p.length > 0) {
+        return p.map((x) => ({
+          id: String(x.id),
+          name: String(x.name || x.nombre || 'Personal').slice(0, 20),
+          icon: typeof (x.icon || x.icono) === 'string' ? (x.icon || x.icono) : ''
+        }));
+      }
     } catch (e) {}
-    return [{ id: 'personal', name: 'Personal' }];
+    return [{ id: 'personal', name: 'Personal', icon: '' }];
   };
   const savePf = (profiles) => {
     try {
+      if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarPerfiles) {
+        return DSAlmacen.guardarPerfiles((profiles || []).map((p) => ({ id: p.id, nombre: p.name, icono: p.icon || '' })));
+      }
       localStorage.setItem('profiles', JSON.stringify(profiles));
-    } catch (e) {}
+      return true;
+    } catch (e) {
+      return false;
+    }
   };
   const pfActive = () => {
     try {
@@ -434,6 +480,45 @@ function bindControls() {
     } catch (e) {}
     return confirm(msg);
   };
+  /**
+   * Solicita el avatar de un perfil (URL, archivo o automático).
+   * @param {string} actual Icono actual.
+   * @returns {Promise<{valor:string, automatico:boolean}|null>} Elección o nulo.
+   */
+  const pedirIconoAvatar = async (actual) => {
+    const msg = typeof tP === 'function' ? tP('pfIconMsg') : 'URL del icono (vacío = automático). Escribe ARCHIVO para subir o AUTO para restablecer:';
+    let entrada = null;
+    try {
+      if (typeof DSDialogs !== 'undefined' && DSDialogs.prompt) {
+        entrada = await DSDialogs.prompt(msg, { title: 'Perfil', defaultValue: actual || '' });
+      } else {
+        entrada = prompt(msg, actual || '');
+      }
+    } catch (e) {
+      entrada = null;
+    }
+    if (entrada === null || entrada === undefined) return null;
+    const texto = String(entrada).trim();
+    if (texto === '' || texto.toUpperCase() === 'AUTO') return { valor: '', automatico: true };
+    if (texto.toUpperCase() === 'ARCHIVO') {
+      const archivo = await new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
+        input.click();
+        setTimeout(() => resolve(null), 60000);
+      });
+      if (!archivo) return null;
+      try {
+        const dataUrl = await DSIconos.archivoADataUrl(archivo);
+        return { valor: dataUrl, automatico: false };
+      } catch (e) {
+        return null;
+      }
+    }
+    return { valor: texto, automatico: false };
+  };
   const renderPfList = () => {
     const profiles = getPf();
     const startupSel = document.getElementById('startupProfile');
@@ -459,9 +544,16 @@ function bindControls() {
       const item = document.createElement('div');
       item.className = 'pool-item';
       const uimg = document.createElement('img');
-      uimg.src = '../assets/Texturas/UI/Usuario.svg';
+      try {
+        uimg.src = (typeof DSIconos !== 'undefined' && DSIconos.resolverAvatarPerfil)
+          ? DSIconos.resolverAvatarPerfil(pf.icon || '', '../assets/Texturas/UI/Usuario.svg')
+          : (pf.icon || '../assets/Texturas/UI/Usuario.svg');
+      } catch (e) {
+        uimg.src = '../assets/Texturas/UI/Usuario.svg';
+      }
       uimg.alt = '';
-      uimg.style.objectFit = 'contain';
+      uimg.style.objectFit = 'cover';
+      uimg.style.borderRadius = '50%';
       const label = document.createElement('span');
       label.textContent = pf.name + (pf.id === active ? ' ✓' : '');
       label.title = pf.name;
@@ -473,6 +565,18 @@ function bindControls() {
         try {
           localStorage.setItem('activeProfile', pf.id);
         } catch (e) {}
+        renderPfList();
+        refrescarExportDestino();
+      });
+      const iconBtn = document.createElement('button');
+      iconBtn.type = 'button';
+      iconBtn.textContent = '◉';
+      iconBtn.title = typeof tP === 'function' ? tP('pfIconTitle') : 'Icono';
+      iconBtn.addEventListener('click', async () => {
+        const eleccion = await pedirIconoAvatar(pf.icon || '');
+        if (!eleccion) return;
+        pf.icon = eleccion.automatico ? '' : eleccion.valor;
+        savePf(profiles);
         renderPfList();
       });
       const rn = document.createElement('button');
@@ -491,7 +595,10 @@ function bindControls() {
           } catch (e2) {}
         }, 350);
       });
+      item.appendChild(uimg);
+      item.appendChild(label);
       item.appendChild(use);
+      item.appendChild(iconBtn);
       item.appendChild(rn);
       if (profiles.length > 1) {
         const del = document.createElement('button');
@@ -584,49 +691,110 @@ function bindControls() {
     }, 350);
   });
 
-  // Copia de seguridad: exportar/importar todos los datos
-  const BACKUP_KEYS = [
-    'darkSnowFConfig', 'wallpaper', 'wallpaperSize', 'wallpaperWidth', 'wallpaperHeight',
-    'wallpaperAnimated', 'wallpaperPool', 'shortcuts', 'shortcutCategories', 'selectedCat',
-    'profiles', 'activeProfile', 'startupProfile', 'profilesMigrated', 'preferredSearchEngine'
-  ];
-  const dynamicKeys = () => {
-    const out = [];
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && (k.indexOf('shortcuts_') === 0 || k.indexOf('shortcutCategories_') === 0 || k.indexOf('selectedCat_') === 0) && BACKUP_KEYS.indexOf(k) === -1) {
-          out.push(k);
-        }
-      }
-    } catch (e) {}
-    return out;
+  /**
+   * Refresca los selectores de exportación e importación con los perfiles actuales.
+   */
+  const refrescarExportDestino = () => {
+    const perfiles = getPf();
+    const exportSel = document.getElementById('exportProfile');
+    if (exportSel) {
+      const previo = exportSel.value;
+      exportSel.innerHTML = '';
+      const todos = document.createElement('option');
+      todos.value = '__todos__';
+      todos.textContent = typeof tP === 'function' ? tP('exportAll') : 'Todos los perfiles';
+      exportSel.appendChild(todos);
+      perfiles.forEach((pf) => {
+        const o = document.createElement('option');
+        o.value = pf.id;
+        o.textContent = pf.name;
+        exportSel.appendChild(o);
+      });
+      exportSel.value = previo || '__todos__';
+    }
+    const destSel = document.getElementById('importDest');
+    if (destSel) {
+      const previoD = destSel.value;
+      destSel.innerHTML = '';
+      perfiles.forEach((pf) => {
+        const o = document.createElement('option');
+        o.value = pf.id;
+        o.textContent = pf.name;
+        destSel.appendChild(o);
+      });
+      if (previoD && perfiles.some((p) => p.id === previoD)) destSel.value = previoD;
+    }
   };
+
+  /**
+   * Resuelve los identificadores a exportar según el selector.
+   * @returns {Array<string>} Identificadores de perfil.
+   */
+  const perfilesAExportar = () => {
+    const sel = document.getElementById('exportProfile');
+    const valor = sel ? sel.value : '__todos__';
+    const perfiles = getPf();
+    if (!valor || valor === '__todos__') return perfiles.map((p) => p.id);
+    return [valor];
+  };
+
+  const incluirGraficos = () => {
+    const box = document.getElementById('exportGraphic');
+    return box ? box.checked : true;
+  };
+
   const backupExport = document.getElementById('btn-export');
   if (backupExport) backupExport.addEventListener('click', async () => {
-    const data = {};
-    BACKUP_KEYS.concat(dynamicKeys()).forEach((k) => {
-      try {
-        const v = localStorage.getItem(k);
-        if (v !== null) data[k] = v;
-      } catch (e) {}
-    });
-    const blob = new Blob([JSON.stringify({ app: 'darksnowf', v: 1, data })], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'darksnowf-copia.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      try {
-        URL.revokeObjectURL(a.href);
-        a.remove();
-      } catch (e) {}
-    }, 1000);
-    await showInfo('backupSaved', 'Copia guardada. Guárdala para restaurar tras reinstalar.', 'cfgTitle', 'Configuración');
+    try {
+      const ids = perfilesAExportar();
+      const doc = DSRespaldo.generarJSON(ids, incluirGraficos());
+      const nombre = ids.length > 1 ? 'darksnowf-enlaces-todos.json' : 'darksnowf-enlaces.json';
+      DSRespaldo.descargar(nombre, JSON.stringify(doc, null, 2), 'application/json');
+      await showInfo('backupSaved', 'Copia guardada. Guárdala para restaurar tras reinstalar.', 'cfgTitle', 'Configuración');
+    } catch (e) {
+      await showInfo('backupBad', 'Archivo inválido: no es una copia de DarkSnowF.', 'cfgTitle', 'Configuración');
+    }
+  });
+  const backupExportTxt = document.getElementById('btn-export-txt');
+  if (backupExportTxt) backupExportTxt.addEventListener('click', async () => {
+    try {
+      const ids = perfilesAExportar();
+      const texto = DSRespaldo.generarTXT(ids);
+      const nombre = ids.length > 1 ? 'darksnowf-enlaces-todos.txt' : 'darksnowf-enlaces.txt';
+      DSRespaldo.descargar(nombre, texto, 'text/plain;charset=utf-8');
+      await showInfo('backupSaved', 'Copia guardada. Guárdala para restaurar tras reinstalar.', 'cfgTitle', 'Configuración');
+    } catch (e) {}
   });
   const backupImportBtn = document.getElementById('btn-import');
   const backupFile = document.getElementById('backup-file');
+  const importPanel = document.getElementById('import-panel');
+  const importList = document.getElementById('import-list');
+  const importConfirm = document.getElementById('btn-import-confirm');
+  let documentoImportado = null;
+  let seleccionImportada = [];
+  const pintarListaImportada = () => {
+    if (!importList) return;
+    importList.innerHTML = '';
+    if (!documentoImportado || !Array.isArray(documentoImportado.perfiles)) return;
+    documentoImportado.perfiles.forEach((p, i) => {
+      const fila = document.createElement('label');
+      fila.className = 'pool-item';
+      fila.style.cursor = 'pointer';
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = seleccionImportada.includes(i);
+      check.style.width = 'auto';
+      check.addEventListener('change', () => {
+        if (check.checked && !seleccionImportada.includes(i)) seleccionImportada.push(i);
+        if (!check.checked) seleccionImportada = seleccionImportada.filter((x) => x !== i);
+      });
+      const txt = document.createElement('span');
+      txt.textContent = (p.nombre || 'Perfil') + ' (' + (p.accesos || []).length + ')';
+      fila.appendChild(check);
+      fila.appendChild(txt);
+      importList.appendChild(fila);
+    });
+  };
   if (backupImportBtn && backupFile) {
     backupImportBtn.addEventListener('click', () => backupFile.click());
     backupFile.addEventListener('change', () => {
@@ -636,16 +804,24 @@ function bindControls() {
       reader.onload = async (ev) => {
         try {
           const parsed = JSON.parse(ev.target.result);
-          if (!parsed || parsed.app !== 'darksnowf' || typeof parsed.data !== 'object') {
-            throw new Error('bad backup');
+          // Respaldo completo antiguo: restauración directa.
+          if (parsed && parsed.app === 'darksnowf' && parsed.v === 1 && parsed.data && typeof parsed.data === 'object') {
+            Object.keys(parsed.data).forEach((k) => {
+              try {
+                localStorage.setItem(k, parsed.data[k]);
+              } catch (e) {}
+            });
+            await showInfo('backupLoaded', 'Copia cargada. Se recargará la página.', 'cfgTitle', 'Configuración');
+            location.reload();
+            return;
           }
-          Object.keys(parsed.data).forEach((k) => {
-            try {
-              localStorage.setItem(k, parsed.data[k]);
-            } catch (e) {}
-          });
-          await showInfo('backupLoaded', 'Copia cargada. Se recargará la página.', 'cfgTitle', 'Configuración');
-          location.reload();
+          const valid = DSRespaldo.validarImportacion(parsed);
+          if (!valid.valido) throw new Error(valid.motivo || 'bad backup');
+          documentoImportado = parsed;
+          seleccionImportada = parsed.perfiles.map((_, i) => i);
+          pintarListaImportada();
+          if (importPanel) importPanel.style.display = 'flex';
+          refrescarExportDestino();
         } catch (e) {
           await showInfo('backupBad', 'Archivo inválido: no es una copia de DarkSnowF.', 'cfgTitle', 'Configuración');
         }
@@ -654,7 +830,45 @@ function bindControls() {
       reader.readAsText(f);
     });
   }
+  if (importConfirm) importConfirm.addEventListener('click', async () => {
+    try {
+      if (!documentoImportado) return;
+      const modo = (document.getElementById('importMode') || {}).value || 'fusionar';
+      const destino = (document.getElementById('importDest') || {}).value;
+      const elegidos = (documentoImportado.perfiles || []).filter((_, i) => seleccionImportada.includes(i));
+      if (elegidos.length === 0) return;
+      if ((modo === 'fusionar' || modo === 'reemplazar') && elegidos.length === 1) {
+        DSRespaldo.aplicarImportacion(elegidos, { modo: modo, destinoId: destino });
+      } else if (modo === 'nuevo' || elegidos.length > 1) {
+        // Varios perfiles o modo nuevo: cada uno a su propio destino.
+        elegidos.forEach((p) => {
+          if (modo === 'nuevo') {
+            DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
+          } else {
+            DSRespaldo.aplicarImportacion([p], { modo: modo, destinoId: destino });
+          }
+        });
+      } else {
+        DSRespaldo.aplicarImportacion(elegidos, { modo: modo, destinoId: destino });
+      }
+      // Fondo y ajustes globales del respaldo, si se incluyeron.
+      try {
+        if (documentoImportado.fondo && typeof documentoImportado.fondo === 'object') {
+          Object.keys(documentoImportado.fondo).forEach((k) => {
+            const v = documentoImportado.fondo[k];
+            if (v === null || v === undefined) localStorage.removeItem(k);
+            else localStorage.setItem(k, v);
+          });
+        }
+      } catch (e) {}
+      await showInfo('backupLoaded', 'Copia cargada. Se recargará la página.', 'cfgTitle', 'Configuración');
+      location.reload();
+    } catch (e) {
+      await showInfo('backupBad', 'Archivo inválido: no es una copia de DarkSnowF.', 'cfgTitle', 'Configuración');
+    }
+  });
   renderPfList();
+  refrescarExportDestino();
   const rotBox = document.getElementById('rotWallpaper');
   if (rotBox) rotBox.addEventListener('change', () => {
     if (rotBox.checked && typeof getWallpaperPool === 'function' && getWallpaperPool().length === 0) {

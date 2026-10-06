@@ -1,4 +1,20 @@
-﻿// ==================== INICIALIZACIÃ“N ====================
+﻿/**
+ * Aplicación principal de la página de inicio DarkSnowF.
+ *
+ * Gestiona fondos, categorías, accesos rápidos, perfiles, buscador,
+ * barra lateral y modales. Todo el estado persistente se guarda en
+ * `localStorage` por perfil y se verifica tras cada escritura para
+ * evitar pérdidas de datos.
+ *
+ * Estructura por perfil:
+ * - `shortcuts_<id>`: accesos `{ id, name, url, icon, catId }`.
+ *   `icon` es opcional; vacío significa favicon automático.
+ * - `shortcutCategories_<id>`: categorías `{ id, name }`.
+ * - `selectedCat_<id>`: categoría seleccionada.
+ * - `profiles`: lista `{ id, name, icon }`. `icon` es el avatar.
+ *
+ * @module IndexApp
+ */
 Clock.init('[data-clock]');
 
 // ==================== FONDOS DE PANTALLA ====================
@@ -46,27 +62,42 @@ function loadWallpaper() {
   }
 }
 
-// Guardar fondo
+/**
+ * Guarda el fondo de pantalla con verificación.
+ * @param {string} url URL del fondo o `default`.
+ * @param {string} size Modo de tamaño (`cover`, `contain`, `auto`, `custom`).
+ * @param {string|null} width Ancho en px para modo personalizado.
+ * @param {string|null} height Alto en px para modo personalizado.
+ * @returns {boolean} Verdadero si se verificó el guardado.
+ */
 function saveWallpaper(url, size, width, height) {
-  if (url === 'default') {
-    localStorage.removeItem('wallpaper');
-    localStorage.removeItem('wallpaperSize');
-    localStorage.removeItem('wallpaperWidth');
-    localStorage.removeItem('wallpaperHeight');
-    document.body.style.backgroundImage = '';
-    document.body.style.backgroundSize = 'cover';
-  } else {
-    localStorage.setItem('wallpaper', url);
-    localStorage.setItem('wallpaperSize', size);
+  try {
+    if (url === 'default') {
+      localStorage.removeItem('wallpaper');
+      localStorage.removeItem('wallpaperSize');
+      localStorage.removeItem('wallpaperWidth');
+      localStorage.removeItem('wallpaperHeight');
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundSize = 'cover';
+      return true;
+    }
+    const guardar = (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarTexto)
+      ? (k, v) => DSAlmacen.guardarTexto(k, v)
+      : (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+    const ok1 = guardar('wallpaper', url);
+    const ok2 = guardar('wallpaperSize', size);
     const full = (typeof resolveWp === 'function') ? resolveWp(url) : url;
     document.body.style.backgroundImage = `url('${full}')`;
     document.body.style.backgroundSize = size;
-    
+
     if (size === 'custom' && width && height) {
-      localStorage.setItem('wallpaperWidth', width);
-      localStorage.setItem('wallpaperHeight', height);
+      guardar('wallpaperWidth', width);
+      guardar('wallpaperHeight', height);
       document.body.style.backgroundSize = `${width}px ${height}px`;
     }
+    return ok1 && ok2;
+  } catch (e) {
+    return false;
   }
 }
 
@@ -285,8 +316,22 @@ function defaultCatName() {
   return (typeof t === 'function') ? t('catGeneral') : 'General';
 }
 
+/**
+ * Guarda las categorías del perfil activo con verificación.
+ * @returns {boolean} Verdadero si el guardado se verificó.
+ */
 function saveCategories() {
-  localStorage.setItem(catKey(), JSON.stringify(categories));
+  try {
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) {
+      return DSAlmacen.guardarJSON(DSAlmacen.claves.categoriasDe(activeProfile), categories);
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem(catKey(), JSON.stringify(categories));
+    return localStorage.getItem(catKey()) !== null;
+  } catch (e) {
+    return false;
+  }
 }
 
 function catKey() {
@@ -570,18 +615,50 @@ const nameInput = document.getElementById('shortcut-name');
 
 let activeProfile = 'personal';
 
+/**
+ * Obtiene la lista de perfiles normalizada.
+ * Garantiza al menos el perfil Personal y la forma `{ id, name, icon }`.
+ * @returns {Array<{id:string, name:string, icon:string}>} Perfiles.
+ */
 function getProfiles() {
   try {
-    const p = JSON.parse(localStorage.getItem('profiles') || '[]');
-    if (Array.isArray(p) && p.length > 0) return p;
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.obtenerPerfiles) {
+      const raw = DSAlmacen.obtenerPerfiles();
+      return raw.map((p) => ({ id: p.id, name: p.nombre, icon: p.icono || '' }));
+    }
   } catch (e) {}
-  return [{ id: 'personal', name: 'Personal' }];
+  try {
+    const p = JSON.parse(localStorage.getItem('profiles') || '[]');
+    if (Array.isArray(p) && p.length > 0) {
+      return p.map((x) => ({
+        id: String(x.id),
+        name: String(x.name || x.nombre || 'Personal').slice(0, 20),
+        icon: typeof (x.icon || x.icono) === 'string' ? (x.icon || x.icono) : ''
+      }));
+    }
+  } catch (e) {}
+  return [{ id: 'personal', name: 'Personal', icon: '' }];
 }
 
+/**
+ * Guarda la lista de perfiles con verificación.
+ * @param {Array} profiles Perfiles a persistir.
+ * @returns {boolean} Verdadero si se verificó.
+ */
 function saveProfiles(profiles) {
   try {
-    localStorage.setItem('profiles', JSON.stringify(profiles));
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarPerfiles) {
+      return DSAlmacen.guardarPerfiles((profiles || []).map((p) => ({
+        id: p.id, nombre: p.name, icono: p.icon || ''
+      })));
+    }
   } catch (e) {}
+  try {
+    localStorage.setItem('profiles', JSON.stringify(profiles));
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 function shortcutsKey() {
@@ -678,6 +755,71 @@ async function askYesNo(msg, title) {
   return confirm(msg);
 }
 
+/**
+ * Resuelve el avatar visible de un perfil.
+ * @param {{icon:string}} pf Perfil.
+ * @param {string} base Ruta base del icono por defecto.
+ * @returns {string} Avatar a mostrar.
+ */
+function avatarDe(pf, base) {
+  try {
+    if (typeof DSIconos !== 'undefined' && DSIconos.resolverAvatarPerfil) {
+      return DSIconos.resolverAvatarPerfil(pf.icon || '', base);
+    }
+  } catch (e) {}
+  return (pf.icon && pf.icon.trim()) ? pf.icon : base;
+}
+
+/**
+ * Pide al usuario el icono de un perfil (URL, archivo o automático).
+ * @param {string} actual Icono actual.
+ * @returns {Promise<{valor:string, archivo:File|null, automatico:boolean}|null>} Elección o nulo si cancela.
+ */
+async function pedirIconoPerfil(actual) {
+  const t2 = (typeof t === 'function') ? t : ((k) => k);
+  const msg = t2('pfIconMsg') !== 'pfIconMsg' ? t2('pfIconMsg') : 'URL del icono del perfil (vacío = automático). Escribe ARCHIVO para subir desde el PC o AUTO para restablecer:';
+  let entrada = null;
+  try {
+    if (typeof DSDialogs !== 'undefined' && DSDialogs.prompt) {
+      entrada = await DSDialogs.prompt(msg, { title: 'Perfil', defaultValue: actual || '' });
+    } else {
+      entrada = prompt(msg, actual || '');
+    }
+  } catch (e) {
+    entrada = null;
+  }
+  if (entrada === null || entrada === undefined) return null;
+  const texto = String(entrada).trim();
+  if (texto.toUpperCase() === 'AUTO' || texto === '') return { valor: '', archivo: null, automatico: true };
+  if (texto.toUpperCase() === 'ARCHIVO') {
+    const archivo = await elegirArchivoImagen();
+    if (!archivo) return null;
+    try {
+      const dataUrl = await DSIconos.archivoADataUrl(archivo);
+      return { valor: dataUrl, archivo: null, automatico: false };
+    } catch (e) {
+      return null;
+    }
+  }
+  return { valor: texto, archivo: null, automatico: false };
+}
+
+/**
+ * Abre un selector de archivo de imagen.
+ * @returns {Promise<File|null>} Archivo elegido o nulo.
+ */
+function elegirArchivoImagen() {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
+    input.oncancel = () => resolve(null);
+    input.click();
+    setTimeout(() => resolve(null), 60000);
+  });
+}
+
 function renderProfiles() {
   const profiles = getProfiles();
   const t2 = (typeof t === 'function') ? t : ((k) => k);
@@ -697,9 +839,28 @@ function renderProfiles() {
       const tab = document.createElement('button');
       tab.type = 'button';
       tab.className = 'cat-tab' + (pf.id === activeProfile ? ' active' : '');
+      const avatar = document.createElement('img');
+      avatar.src = avatarDe(pf, 'assets/Texturas/UI/Usuario.svg');
+      avatar.alt = '';
+      avatar.className = 'cat-mini';
+      avatar.style.width = '18px';
+      avatar.style.height = '18px';
+      avatar.style.borderRadius = '50%';
+      avatar.style.objectFit = 'cover';
+      tab.appendChild(avatar);
       const name = document.createElement('span');
       name.textContent = pf.name;
       tab.appendChild(name);
+      const ic = document.createElement('img');
+      ic.src = 'assets/Texturas/UI/EditarFondo.svg';
+      ic.alt = '';
+      ic.className = 'cat-mini';
+      ic.title = (typeof t === 'function') ? t('pfIconTitle') : 'Icono';
+      ic.addEventListener('click', (e) => {
+        e.stopPropagation();
+        editProfileIcon(pf.id);
+      });
+      tab.appendChild(ic);
       const rn = document.createElement('img');
       rn.src = 'assets/Texturas/UI/Editar.svg';
       rn.alt = '';
@@ -745,6 +906,14 @@ function renderProfiles() {
       b.type = 'button';
       b.className = 'cat-tab' + (pf.id === activeProfile ? ' active' : '');
       b.style.flex = '1';
+      const avatar = document.createElement('img');
+      avatar.src = avatarDe(pf, 'assets/Texturas/UI/Usuario.svg');
+      avatar.alt = '';
+      avatar.style.width = '20px';
+      avatar.style.height = '20px';
+      avatar.style.borderRadius = '50%';
+      avatar.style.objectFit = 'cover';
+      b.appendChild(avatar);
       const s = document.createElement('span');
       s.textContent = pf.name;
       b.appendChild(s);
@@ -765,11 +934,34 @@ async function createProfile() {
   if (!name || !name.trim()) return;
   const profiles = getProfiles();
   const id = 'p' + Date.now();
-  profiles.push({ id, name: name.trim().slice(0, 20) });
-  saveProfiles(profiles);
+  profiles.push({ id, name: name.trim().slice(0, 20), icon: '' });
+  if (!saveProfiles(profiles)) {
+    await askYesNo(t2('quotaMsg') || 'No se pudo guardar.', 'DarkSnowF');
+    return;
+  }
   setActiveProfile(id);
   // El perfil nuevo elige su tema y motor con el tutorial (tras recargar).
   try { localStorage.setItem('ds_onboard_step', '1'); } catch (e) {}
+  acceptReload();
+}
+
+/**
+ * Edita el avatar de un perfil (URL, archivo o automático).
+ * @param {string} id Identificador del perfil.
+ */
+async function editProfileIcon(id) {
+  const profiles = getProfiles();
+  const pf = profiles.find((p) => p.id === id);
+  if (!pf) return;
+  const eleccion = await pedirIconoPerfil(pf.icon || '');
+  if (!eleccion) return;
+  pf.icon = eleccion.automatico ? '' : eleccion.valor;
+  if (!saveProfiles(profiles)) {
+    const t2 = (typeof t === 'function') ? t : ((k) => k);
+    await askYesNo(t2('quotaMsg') || 'No se pudo guardar.', 'DarkSnowF');
+    return;
+  }
+  renderProfiles();
   acceptReload();
 }
 
@@ -855,11 +1047,41 @@ window.addEventListener('storage', (e) => {
   }
 });
 
+/**
+ * Guarda los accesos del perfil activo con verificación de escritura.
+ * Si no hay cuota suficiente, informa al usuario sin perder el estado en memoria.
+ * @returns {boolean} Verdadero si el guardado se verificó.
+ */
 function saveShortcuts() {
-  localStorage.setItem(shortcutsKey(), JSON.stringify(shortcuts));
+  try {
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarAtajos) {
+      const ok = DSAlmacen.guardarAtajos(activeProfile, shortcuts);
+      if (!ok && typeof DSDialogs !== 'undefined' && DSDialogs.confirm) {
+        const msg = (typeof t === 'function') ? t('quotaMsg') : 'No se pudo guardar: almacenamiento lleno. Prueba con iconos más pequeños.';
+        DSDialogs.confirm(msg, { title: 'DarkSnowF', confirmText: 'OK' }).catch(() => {});
+      }
+      return ok;
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem(shortcutsKey(), JSON.stringify(shortcuts));
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
+/**
+ * Obtiene la URL del favicon automático para un sitio.
+ * @param {string} url URL del sitio.
+ * @returns {string} URL del favicon o icono genérico.
+ */
 function getFaviconUrl(url) {
+  try {
+    if (typeof DSIconos !== 'undefined' && DSIconos.faviconAutomatico) {
+      return DSIconos.faviconAutomatico(url);
+    }
+  } catch (e) {}
   try {
     const urlObj = new URL(url);
     return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
@@ -909,7 +1131,13 @@ function renderShortcuts() {
     actions.append(editBtn, deleteBtn);
 
     const icon = document.createElement('img');
-    icon.src = shortcut.icon || fallbackShortcutIcon;
+    try {
+      icon.src = (typeof DSIconos !== 'undefined' && DSIconos.resolverIconoAcceso)
+        ? DSIconos.resolverIconoAcceso(shortcut.icon || '', shortcut.url)
+        : (shortcut.icon || fallbackShortcutIcon);
+    } catch (e) {
+      icon.src = shortcut.icon || fallbackShortcutIcon;
+    }
     icon.alt = shortcut.name;
     icon.className = 'shortcut-icon';
     icon.onerror = () => {
@@ -1054,9 +1282,37 @@ shortcutsContainer.addEventListener('drop', (e) => {
   saveShortcutOrderFromDom();
 });
 
+/**
+ * Icono temporal elegido en el modal (URL o dataURL). Vacío = automático.
+ * @type {string}
+ */
+let iconoTemporalAcceso = '';
+
+/**
+ * Actualiza la vista previa del icono en el modal.
+ * @param {string} icono Icono a previsualizar.
+ * @param {string} urlSitio URL del sitio para el modo automático.
+ */
+function actualizarVistaPreviaIcono(icono, urlSitio) {
+  const vista = document.getElementById('shortcut-icon-preview');
+  if (!vista) return;
+  try {
+    if (icono && typeof DSIconos !== 'undefined' && DSIconos.esUrlIconoValida && DSIconos.esUrlIconoValida(icono)) {
+      vista.src = icono;
+      return;
+    }
+  } catch (e) {}
+  try {
+    vista.src = getFaviconUrl(urlSitio || (urlInput && urlInput.value) || 'https://ejemplo.com');
+  } catch (e) {
+    vista.src = fallbackShortcutIcon;
+  }
+}
+
 function openModal(shortcut = null) {
   editingShortcutId = shortcut ? shortcut.id : null;
-  
+  iconoTemporalAcceso = (shortcut && typeof shortcut.icon === 'string') ? shortcut.icon : '';
+
   if (shortcut) {
     modalTitle.textContent = (typeof t === 'function') ? t('modalEdit') : 'Editar acceso rápido';
     urlInput.value = shortcut.url;
@@ -1066,6 +1322,14 @@ function openModal(shortcut = null) {
     urlInput.value = '';
     nameInput.value = '';
   }
+
+  const iconUrlInput = document.getElementById('shortcut-icon-url');
+  const iconFileInput = document.getElementById('shortcut-icon-file');
+  const iconName = document.getElementById('shortcut-icon-name');
+  if (iconUrlInput) iconUrlInput.value = iconoTemporalAcceso && iconoTemporalAcceso.indexOf('data:') !== 0 ? iconoTemporalAcceso : '';
+  if (iconFileInput) iconFileInput.value = '';
+  if (iconName) iconName.textContent = '';
+  actualizarVistaPreviaIcono(iconoTemporalAcceso, urlInput.value);
 
   modalOverlay.classList.add('active');
   urlInput.focus();
@@ -1113,15 +1377,27 @@ async function deleteShortcut(id) {
 
 shortcutForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  
+
   const url = urlInput.value.trim();
+  if (!url) return;
   let name = nameInput.value.trim();
 
   if (!name) {
     name = getNameFromUrl(url);
   }
 
-  const icon = getFaviconUrl(url);
+  const iconUrlInput = document.getElementById('shortcut-icon-url');
+  const urlManual = iconUrlInput ? iconUrlInput.value.trim() : '';
+  let icon = '';
+  if (iconoTemporalAcceso && iconoTemporalAcceso.indexOf('data:') === 0) {
+    icon = iconoTemporalAcceso;
+  } else if (urlManual) {
+    icon = urlManual;
+  } else if (iconoTemporalAcceso) {
+    icon = iconoTemporalAcceso;
+  } else {
+    icon = '';
+  }
   const catSelect = document.getElementById('shortcut-cat');
   const catId = (catSelect && catSelect.value) ? catSelect.value : selectedCat;
 
@@ -1143,13 +1419,67 @@ shortcutForm.addEventListener('submit', (e) => {
     });
   }
 
-  saveShortcuts();
+  if (!saveShortcuts()) {
+    return;
+  }
   renderShortcuts();
+  iconoTemporalAcceso = '';
   closeModal();
   acceptReload();
 });
 
 modalCancel.addEventListener('click', closeModal);
+
+/**
+ * Enlaza los controles de icono personalizado del modal de accesos.
+ * Permite URL manual, subida de archivo y restablecimiento automático.
+ */
+(function enlazarControlesIconoAcceso() {
+  const iconUrlInput = document.getElementById('shortcut-icon-url');
+  const iconFileInput = document.getElementById('shortcut-icon-file');
+  const iconFileBtn = document.querySelector('[data-icon-file-btn]');
+  const iconAutoBtn = document.querySelector('[data-icon-auto-btn]');
+  const iconName = document.getElementById('shortcut-icon-name');
+  if (iconUrlInput) {
+    iconUrlInput.addEventListener('input', () => {
+      iconoTemporalAcceso = iconUrlInput.value.trim();
+      if (iconName) iconName.textContent = '';
+      actualizarVistaPreviaIcono(iconoTemporalAcceso, urlInput.value);
+    });
+  }
+  if (iconFileBtn && iconFileInput) {
+    iconFileBtn.addEventListener('click', () => iconFileInput.click());
+  }
+  if (iconFileInput) {
+    iconFileInput.addEventListener('change', async () => {
+      const archivo = iconFileInput.files && iconFileInput.files[0];
+      if (!archivo) return;
+      try {
+        const dataUrl = await DSIconos.archivoADataUrl(archivo);
+        iconoTemporalAcceso = dataUrl;
+        if (iconUrlInput) iconUrlInput.value = '';
+        if (iconName) iconName.textContent = 'Archivo: ' + archivo.name;
+        actualizarVistaPreviaIcono(dataUrl, urlInput.value);
+      } catch (err) {
+        if (iconName) iconName.textContent = err && err.message ? err.message : 'Imagen no válida.';
+      }
+    });
+  }
+  if (iconAutoBtn) {
+    iconAutoBtn.addEventListener('click', () => {
+      iconoTemporalAcceso = '';
+      if (iconUrlInput) iconUrlInput.value = '';
+      if (iconFileInput) iconFileInput.value = '';
+      if (iconName) iconName.textContent = '';
+      actualizarVistaPreviaIcono('', urlInput.value);
+    });
+  }
+  if (typeof urlInput !== 'undefined' && urlInput) {
+    urlInput.addEventListener('input', () => {
+      if (!iconoTemporalAcceso) actualizarVistaPreviaIcono('', urlInput.value);
+    });
+  }
+})();
 
 modalOverlay.addEventListener('click', (e) => {
   if (e.target === modalOverlay) {

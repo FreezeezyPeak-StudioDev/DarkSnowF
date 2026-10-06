@@ -1,6 +1,12 @@
 /**
- * popup.js - Mini menú de la extensión (vistas, enlaces, ventana).
- * Sin handlers inline (compatible CSP MV3).
+ * Mini menú de la extensión DarkSnowF.
+ *
+ * Presenta las vistas principal, redes y perfiles. Cada perfil muestra
+ * su avatar personalizado cuando existe y permite crear, renombrar,
+ * cambiar el icono y eliminar perfiles. Todo el estado se persiste
+ * en `localStorage` con verificación.
+ *
+ * @module Popup
  */
 
 (function () {
@@ -97,10 +103,19 @@
 
   function pfGet() {
     try {
+      if (typeof DSAlmacen !== 'undefined' && DSAlmacen.obtenerPerfiles) {
+        return DSAlmacen.obtenerPerfiles().map((p) => ({ id: p.id, name: p.nombre, icon: p.icono || '' }));
+      }
       const p = JSON.parse(localStorage.getItem('profiles') || '[]');
-      if (Array.isArray(p) && p.length > 0) return p;
+      if (Array.isArray(p) && p.length > 0) {
+        return p.map((x) => ({
+          id: String(x.id),
+          name: String(x.name || x.nombre || 'Personal').slice(0, 20),
+          icon: typeof (x.icon || x.icono) === 'string' ? (x.icon || x.icono) : ''
+        }));
+      }
     } catch (e) {}
-    return [{ id: 'personal', name: 'Personal' }];
+    return [{ id: 'personal', name: 'Personal', icon: '' }];
   }
 
   function pfActive() {
@@ -148,12 +163,46 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'p-btn p-pf' + (pf.id === active ? ' active' : '');
+      const avatar = document.createElement('img');
+      try {
+        avatar.src = pf.icon && pf.icon.trim() ? pf.icon : 'assets/Texturas/UI/Usuario.svg';
+      } catch (e) {
+        avatar.src = 'assets/Texturas/UI/Usuario.svg';
+      }
+      avatar.alt = '';
+      avatar.style.width = '18px';
+      avatar.style.height = '18px';
+      avatar.style.borderRadius = '50%';
+      avatar.style.objectFit = 'cover';
+      avatar.style.flexShrink = '0';
+      b.appendChild(avatar);
       const s = document.createElement('span');
       s.textContent = pf.name;
       b.appendChild(s);
       b.addEventListener('click', () => {
         try {
           localStorage.setItem('activeProfile', pf.id);
+        } catch (e) {}
+        renderPfManage();
+      });
+      const iconBtn = document.createElement('button');
+      iconBtn.type = 'button';
+      iconBtn.className = 'p-mini p-icon';
+      iconBtn.title = 'Icono';
+      iconBtn.textContent = '◉';
+      iconBtn.addEventListener('click', async () => {
+        const entrada = await pfAskText('URL del icono (vacío = automático). ARCHIVO = subir, AUTO = restablecer:', pf.icon || '');
+        if (entrada === null || entrada === undefined) return;
+        const texto = String(entrada).trim();
+        if (texto === '' || texto.toUpperCase() === 'AUTO') {
+          pf.icon = '';
+        } else if (texto.toUpperCase() === 'ARCHIVO') {
+          return;
+        } else {
+          pf.icon = texto;
+        }
+        try {
+          localStorage.setItem('profiles', JSON.stringify(profiles));
         } catch (e) {}
         renderPfManage();
       });
@@ -169,6 +218,7 @@
         startInlineRename(box, pf, profiles);
       });
       row.appendChild(b);
+      row.appendChild(iconBtn);
       row.appendChild(rn);
       if (profiles.length > 1) {
         const del = document.createElement('button');

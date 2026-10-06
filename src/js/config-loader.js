@@ -1,4 +1,12 @@
-// Cargar y aplicar configuraciones guardadas
+/**
+ * Carga y aplica la configuración guardada de DarkSnowF.
+ *
+ * Aplica tipografía, visibilidad de reloj y buscador, tema por perfil,
+ * velocidad de animación, partículas, sonido, zoom, fondo y cursor.
+ * Incluye recarga verificada y avisos de compatibilidad con CatCursorF.
+ *
+ * @module CargadorConfig
+ */
 (function() {
   // La página cargó: la recarga solicitada se completó.
   try { sessionStorage.removeItem('ds_reloading'); } catch (e) {}
