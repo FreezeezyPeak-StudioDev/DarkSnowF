@@ -55,79 +55,39 @@ Experiencia oscura, personalizable y completa. Buscador multi-motor, accesos rá
 
 ```text
 DarkSnowF/
-├── Index.html                    ← home (buscador, accesos, categorías, logo)
-├── popup.html                    ← mini menú del icono (redes, perfiles, ventana)
-├── manifest.json                 ← MV3 v3.2 (newtab, permisos, iconos)
-├── read.txt                      ← documentación
-├── .vscode/
-│   └── settings.json             ← config del editor
-│
+├── Index.html                  ← inicio (buscador, accesos, categorías, logo)
+├── popup.html                  ← mini menú del icono (redes, perfiles, ventana)
+├── manifest.json               ← MV3 v1.1.0 (newtab, homepage, fondo worker+scripts)
+├── .vscode/settings.json       ← solo editor, excluido del XPI
 ├── pages/
-│   ├── config.html               ← ajustes (tema, fondo, reloj, zoom, perfiles…)
-│   ├── credit.html               ← créditos (logo + redes)
-│   └── License.html              ← licencia GPL-3.0
-│
+│   ├── config.html             ← ajustes, perfiles, exportar/importar TXT-JSON
+│   ├── credit.html             ← créditos
+│   └── License.html            ← licencia GPL-3.0
 ├── assets/
-│   ├── Fx/
-│   │   └── Click2.mp3            ← sonido de clic
-│   ├── Texturas/
-│   │   ├── Logos/
-│   │   │   ├── DarkSnowF.ico
-│   │   │   ├── DarkSnowF.png
-│   │   │   └── logo_freezeezy.png
-│   │   └── UI/
-│   │       ├── 16 PNG
-│   │       └── 21 SVG            ← iconos
-│   └── icons/
-│       ├── gatos/                ← 5 iconos
-│       └── iconGd/
-│           ├── Mc/
-│           ├── Nav/
-│           ├── Normal/
-│           ├── Ny/
-│           └── Win/
-│
+│   ├── Fx/Click2.mp3           ← sonido de clic
+│   └── Texturas/
+│       ├── backgrounds/ (8 JPG)← fondos
+│       ├── Logos/ (5 PNG)      ← logos
+│       └── UI/ (18 SVG)        ← iconos de interfaz
 ├── src/
-│   ├── css/
-│   │   ├── cursor.css
-│   │   ├── dialogs.css
-│   │   ├── index-styles.css
-│   │   ├── main.css
-│   │   ├── menu.css
-│   │   ├── modals.css
-│   │   └── themes.css
-│   │
-│   └── js/
-│       ├── background.js
-│       ├── clock.js
-│       ├── config-loader.js
-│       ├── config-page.js
-│       ├── festive.js
-│       ├── i18n.js
-│       ├── i18n-pages.js
-│       ├── index-app.js
-│       ├── menu.js
-│       ├── modals.js
-│       ├── popup.js
-│       ├── rotate.js
-│       └── snow.js
-│
-├── utils/
-│   ├── animations.js
-│   ├── dialogs.js
-│   └── storage.js
-│
-├── themes/
-│   ├── abyss.css
-│   ├── frost.css
-│   ├── neon.css
-│   ├── ocean.css
-│   └── dark.css                ← por defecto
-│
-└── versions/
-    ├── V1.0beta.xpi
-    ├── V2.0beta.xpi
-    └── V3.2beta.xpi
+│   ├── css/ (7)                ← cursor, dialogs, index-styles, main, menu, modals, themes
+│   └── js/ (20)
+│       ├── index-app.js        ← aplicación principal
+│       ├── almacen.js          ← guardado verificado
+│       ├── iconos.js           ← iconos URL, archivo o automático
+│       ├── respaldo.js         ← respaldo TXT y JSON
+│       ├── config-page.js      ← página de opciones
+│       ├── config-loader.js    ← aplica ajustes
+│       ├── profile-cfg.js      ← tema y motor por perfil
+│       ├── popup.js            ← popup con avatares
+│       ├── background.js       ← fondo MV3
+│       ├── onboarding.js       ← bienvenida
+│       ├── i18n.js             ← idiomas inicio
+│       ├── i18n-pages.js       ← idiomas páginas
+│       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
+├── utils/dialogs.js            ← diálogos
+├── themes/ (oscuro, claro)     ← temas
+└── versions/ (V1.0, V1.1.0)    ← paquetes XPI
 ```
 ### Cómo Usar
 
@@ -188,79 +148,39 @@ Dark, customizable, complete experience. Multi-engine search, draggable shortcut
 
 ```text
 DarkSnowF/
-├── Index.html                    ← home (search, shortcuts, categories, logo)
-├── popup.html                    ← mini menu of icon (networks, profiles, window)
-├── manifest.json                 ← MV3 v3.2 (newtab, permissions, icons)
-├── read.txt                     ← documentation
-├── .vscode/
-│   └── settings.json             ← editor config
-│
+├── Index.html                  ← home (search, shortcuts, categories, logo)
+├── popup.html                  ← toolbar popup (socials, profiles, window)
+├── manifest.json               ← MV3 v1.1.0 (newtab, homepage, worker+scripts background)
+├── .vscode/settings.json       ← editor only, excluded from XPI
 ├── pages/
-│   ├── config.html               ← settings (theme, background, clock, zoom, profiles…)
-│   ├── credit.html               ← credits (logo + networks)
-│   └── License.html              ← GPL-3.0 license
-│
+│   ├── config.html             ← settings, profiles, TXT-JSON backup
+│   ├── credit.html             ← credits
+│   └── License.html            ← GPL-3.0 license
 ├── assets/
-│   ├── Fx/
-│   │   └── Click2.mp3            ← click sound
-│   ├── Texturas/
-│   │   ├── Logos/
-│   │   │   ├── DarkSnowF.ico
-│   │   │   ├── DarkSnowF.png
-│   │   │   └── logo_freezeezy.png
-│   │   └── UI/
-│   │       ├── 16 PNG
-│   │       └── 21 SVG            ← interface icons
-│   └── icons/
-│       ├── gatos/                ← 5 cats
-│       └── iconGd/
-│           ├── Mc/
-│           ├── Nav/
-│           ├── Normal/
-│           ├── Ny/
-│           └── Win/
-│
+│   ├── Fx/Click2.mp3           ← click sound
+│   └── Texturas/
+│       ├── backgrounds/ (8 JPG)← wallpapers
+│       ├── Logos/ (5 PNG)      ← logos
+│       └── UI/ (18 SVG)        ← interface icons
 ├── src/
-│   ├── css/
-│   │   ├── cursor.css
-│   │   ├── dialogs.css
-│   │   ├── index-styles.css
-│   │   ├── main.css
-│   │   ├── menu.css
-│   │   ├── modals.css
-│   │   └── themes.css
-│   │
-│   └── js/
-│       ├── background.js
-│       ├── clock.js
-│       ├── config-loader.js
-│       ├── config-page.js
-│       ├── festive.js
-│       ├── i18n.js
-│       ├── i18n-pages.js
-│       ├── index-app.js
-│       ├── menu.js
-│       ├── modals.js
-│       ├── popup.js
-│       ├── rotate.js
-│       └── snow.js
-│
-├── utils/
-│   ├── animations.js
-│   ├── dialogs.js
-│   └── storage.js
-│
-├── themes/
-│   ├── abyss.css
-│   ├── frost.css
-│   ├── neon.css
-│   ├── ocean.css
-│   └── dark.css                ← default
-│
-└── versions/
-    ├── V1.0beta.xpi
-    ├── V2.0beta.xpi
-    └── V3.2beta.xpi
+│   ├── css/ (7)                ← cursor, dialogs, index-styles, main, menu, modals, themes
+│   └── js/ (20)
+│       ├── index-app.js        ← main app
+│       ├── almacen.js          ← verified storage
+│       ├── iconos.js           ← custom icons (URL, file, auto)
+│       ├── respaldo.js         ← TXT and JSON backup
+│       ├── config-page.js      ← options page
+│       ├── config-loader.js    ← applies settings
+│       ├── profile-cfg.js      ← per-profile theme and engine
+│       ├── popup.js            ← popup with avatars
+│       ├── background.js       ← MV3 background
+│       ├── onboarding.js       ← welcome flow
+│       ├── i18n.js             ← home locales
+│       ├── i18n-pages.js       ← pages locales
+│       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
+├── utils/dialogs.js            ← dialogs
+├── themes/ (oscuro, claro)     ← themes
+└── versions/ (V1.0, V1.1.0)    ← XPI packages
 ```
 
 
