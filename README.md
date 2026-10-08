@@ -14,7 +14,7 @@
 
 <div align="center">
 
-![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v3.2-blue?style=for-the-badge&logo=firefox)
+![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v1.1.1-blue?style=for-the-badge&logo=firefox)
 
 ## DarkSnowF
 
@@ -44,7 +44,9 @@ Experiencia oscura, personalizable y completa. Buscador multi-motor, accesos rá
 
 - **Buscador Multi-Motor** — Google, Bing, DuckDuckGo, ChatGPT, Wikipedia, Perplexity
 - **Accesos Rápidos** — Arrastra, organiza y categoriza con iconos automáticos
+- **Grupos con icono** — Cada categoría con emoji, imagen o aleatorio; reordenables por arrastre
 - **Perfiles** — Personal, Público, Trabajo... cada uno con enlaces independientes
+- **Perfil ajustes** — Descarga uno, varios o todos los perfiles y súbelos en otro PC
 - **Reloj en Vivo** — Sincronización internet/PC, formato 12/24h, zonas horarias
 - **Fondos Dinámicos** — Presets, URLs o archivos locales con rotación automática
 - **5 Temas Azules** — Oscuro, claro y paletas exclusivas
@@ -57,10 +59,11 @@ Experiencia oscura, personalizable y completa. Buscador multi-motor, accesos rá
 DarkSnowF/
 ├── Index.html                  ← inicio (buscador, accesos, categorías, logo)
 ├── popup.html                  ← mini menú del icono (redes, perfiles, ventana)
-├── manifest.json               ← MV3 v1.1.0 (newtab, homepage, fondo worker+scripts)
+├── manifest.json               ← MV3 v1.1.1 (newtab, homepage, fondo worker+scripts)
 ├── .vscode/settings.json       ← solo editor, excluido del XPI
 ├── pages/
 │   ├── config.html             ← ajustes, perfiles, exportar/importar TXT-JSON
+│   ├── perfiles.html           ← perfil ajustes (descargar/subir 1, varios o todos)
 │   ├── credit.html             ← créditos
 │   └── License.html            ← licencia GPL-3.0
 ├── assets/
@@ -70,12 +73,14 @@ DarkSnowF/
 │       ├── Logos/ (5 PNG)      ← logos
 │       └── UI/ (18 SVG)        ← iconos de interfaz
 ├── src/
-│   ├── css/ (7)                ← cursor, dialogs, index-styles, main, menu, modals, themes
-│   └── js/ (20)
-│       ├── index-app.js        ← aplicación principal
+│   ├── css/ (8)                ← cursor, dialogs, index-styles, main, menu, modals, movil, themes
+│   └── js/ (23)
+│       ├── index-app.js        ← aplicación principal (accesos, grupos con icono, perfiles)
 │       ├── almacen.js          ← guardado verificado
+│       ├── persistencia.js     ← espejo en chrome.storage.local
 │       ├── iconos.js           ← iconos URL, archivo o automático
 │       ├── respaldo.js         ← respaldo TXT y JSON
+│       ├── perfiles-page.js    ← página de perfil ajustes
 │       ├── config-page.js      ← página de opciones
 │       ├── config-loader.js    ← aplica ajustes
 │       ├── profile-cfg.js      ← tema y motor por perfil
@@ -85,9 +90,9 @@ DarkSnowF/
 │       ├── i18n.js             ← idiomas inicio
 │       ├── i18n-pages.js       ← idiomas páginas
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
-├── utils/dialogs.js            ← diálogos
+├── utils/dialogs.js            ← diálogos (confirm, prompt, subida de imagen, selector de emojis)
 ├── themes/ (oscuro, claro)     ← temas
-└── versions/ (V1.0, V1.1.0)    ← paquetes XPI
+└── versions/ (V1.0, V1.1.0, V1.1.1) ← paquetes XPI
 ```
 ### Cómo Usar
 
@@ -135,7 +140,9 @@ Dark, customizable, complete experience. Multi-engine search, draggable shortcut
 
 - **Multi-Engine Search** — Google, Bing, DuckDuckGo, ChatGPT, Wikipedia, Perplexity
 - **Draggable Shortcuts** — Drag, organize and categorize with automatic icons
+- **Icon groups** — Each category with emoji, image or random; drag to reorder
 - **Profiles** — Personal, Public, Work... each with independent links
+- **Profile settings** — Download one, several or all profiles and upload them on another PC
 - **Live Clock** — Internet/PC sync, 12/24h format, timezone support
 - **Dynamic Backgrounds** — Presets, URLs, or local files with auto-rotation
 - **5 Blue Themes** — Dark, light and exclusive palettes
@@ -150,10 +157,11 @@ Dark, customizable, complete experience. Multi-engine search, draggable shortcut
 DarkSnowF/
 ├── Index.html                  ← home (search, shortcuts, categories, logo)
 ├── popup.html                  ← toolbar popup (socials, profiles, window)
-├── manifest.json               ← MV3 v1.1.0 (newtab, homepage, worker+scripts background)
+├── manifest.json               ← MV3 v1.1.1 (newtab, homepage, worker+scripts background)
 ├── .vscode/settings.json       ← editor only, excluded from XPI
 ├── pages/
 │   ├── config.html             ← settings, profiles, TXT-JSON backup
+│   ├── perfiles.html           ← profile settings (download/upload one, several or all)
 │   ├── credit.html             ← credits
 │   └── License.html            ← GPL-3.0 license
 ├── assets/
@@ -163,12 +171,14 @@ DarkSnowF/
 │       ├── Logos/ (5 PNG)      ← logos
 │       └── UI/ (18 SVG)        ← interface icons
 ├── src/
-│   ├── css/ (7)                ← cursor, dialogs, index-styles, main, menu, modals, themes
-│   └── js/ (20)
-│       ├── index-app.js        ← main app
+│   ├── css/ (8)                ← cursor, dialogs, index-styles, main, menu, modals, movil, themes
+│   └── js/ (23)
+│       ├── index-app.js        ← main app (shortcuts, icon groups, profiles)
 │       ├── almacen.js          ← verified storage
+│       ├── persistencia.js     ← chrome.storage.local mirror
 │       ├── iconos.js           ← custom icons (URL, file, auto)
 │       ├── respaldo.js         ← TXT and JSON backup
+│       ├── perfiles-page.js    ← profile settings page
 │       ├── config-page.js      ← options page
 │       ├── config-loader.js    ← applies settings
 │       ├── profile-cfg.js      ← per-profile theme and engine
@@ -178,9 +188,9 @@ DarkSnowF/
 │       ├── i18n.js             ← home locales
 │       ├── i18n-pages.js       ← pages locales
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
-├── utils/dialogs.js            ← dialogs
+├── utils/dialogs.js            ← dialogs (confirm, prompt, image upload, emoji picker)
 ├── themes/ (oscuro, claro)     ← themes
-└── versions/ (V1.0, V1.1.0)    ← XPI packages
+└── versions/ (V1.0, V1.1.0, V1.1.1) ← XPI packages
 ```
 
 

@@ -135,3 +135,41 @@
 .ds-confirm-btn.danger:hover {
   background: rgba(255, 60, 60, 0.25);
 }
+
+/* Mini-menú selector de emojis */
+.ds-emoji-label {
+  margin: 0 0 8px 0;
+  color: var(--ds-text, #e8eef8);
+  font-size: 0.85rem;
+}
+
+.ds-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  margin-bottom: 16px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.ds-emoji-btn {
+  font-size: 1.3rem;
+  line-height: 1.4;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 2px;
+  cursor: pointer;
+  font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Symbol", sans-serif;
+  font-variant-emoji: emoji;
+}
+
+.ds-emoji-btn:hover {
+  background: rgba(0, 102, 178, 0.25);
+  border-color: #0066B2;
+  transform: scale(1.2);
+}

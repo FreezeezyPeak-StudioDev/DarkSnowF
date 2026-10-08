@@ -214,4 +214,6 @@
 .shared-social-row svg {
   width: 22px;
   height: 22px;
+  pointer-events: none;
+  flex-shrink: 0;
 }

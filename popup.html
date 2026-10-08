@@ -85,21 +85,39 @@
     }
     .p-pf {
       justify-content: flex-start;
+      min-width: 0;
+      height: 36px;
     }
     .p-pf.active {
       border-color: #0066B2;
       background: rgba(0, 51, 102, 0.2);
     }
+    .p-pf span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .p-pf img {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
     .p-pf-row {
       display: flex;
       gap: 6px;
-      align-items: stretch;
+      align-items: center;
     }
     .p-pf-row .p-pf {
       flex: 1;
+      min-width: 0;
     }
     .p-mini {
       width: 26px;
+      height: 36px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -133,6 +151,14 @@
       font-size: 0.82rem;
       outline: none;
       font-family: inherit;
+      height: 36px;
+    }
+    [data-pf-manage] {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
     }
     .p-btn.off {
       border-color: rgba(120, 130, 150, 0.5);
@@ -214,6 +240,7 @@
 
   <script src="utils/dialogs.js"></script>
   <script src="src/js/almacen.js"></script>
+  <script src="src/js/persistencia.js"></script>
   <script src="src/js/profile-cfg.js"></script>
   <script src="src/js/popup.js"></script>
 </body>

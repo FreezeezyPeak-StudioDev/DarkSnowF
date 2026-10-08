@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil ajustes - DarkSnowF</title>
+  <link rel="icon" href="../assets/Texturas/Logos/DarkSnowF.png" type="image/png">
+  <link rel="stylesheet" href="../src/css/main.css">
+  <link rel="stylesheet" href="../src/css/movil.css">
+  <link rel="stylesheet" href="../src/css/themes.css">
+  <style>
+    body {
+      background: linear-gradient(180deg, #080c15 0%, #070b12 45%, #05070a 100%);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #e8eef8;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      padding: 6px;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 1.7rem;
+      color: #0066B2;
+      margin: 0 0 6px 0;
+    }
+    .header p {
+      color: #8fa2c8;
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .setting-card {
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(8, 13, 24, 0.85);
+      border: 1px solid rgba(0, 102, 178, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      margin-bottom: 0;
+    }
+    .setting-card h3 {
+      color: #0066B2;
+      margin-top: 0;
+    }
+    .setting-card p.hint {
+      color: #8fa2c8;
+      font-size: 0.82rem;
+      margin: 0 0 12px 0;
+    }
+    .pf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 210px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .pf-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .pf-item img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .pf-item span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pf-item small {
+      color: #8fa2c8;
+    }
+    .pf-item input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      flex: 1 1 auto;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      width: auto;
+    }
+    .btn-primary {
+      background: #0066B2;
+      color: #070b12;
+    }
+    .btn-secondary {
+      background: rgba(0, 51, 102, 0.15);
+      color: #0066B2;
+      border: 1px solid #0066B2;
+    }
+    .setting-group {
+      margin-bottom: 12px;
+    }
+    .setting-group label {
+      display: block;
+      color: #8fa2c8;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .setting-group select {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 51, 102, 0.2);
+      border-radius: 8px;
+      color: #e8eef8;
+    }
+    .check-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #8fa2c8;
+      margin-bottom: 12px;
+    }
+    .check-line input {
+      width: auto;
+      cursor: pointer;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 10px 20px;
+      background: rgba(0, 51, 102, 0.15);
+      border: 1px solid #0066B2;
+      border-radius: 8px;
+      color: #0066B2;
+      text-decoration: none;
+    }
+  </style>
+  <link rel="stylesheet" href="../src/css/cursor.css">
+  <link rel="stylesheet" href="../src/css/menu.css">
+  <link rel="stylesheet" href="../src/css/modals.css">
+  <link rel="stylesheet" href="../src/css/dialogs.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="../assets/Texturas/Logos/logo_freezeezy peak_HD.png" alt="Logo DarkSnowF" class="brand-logo">
+      <h1>Perfil ajustes</h1>
+      <p>Descarga uno, varios o todos los perfiles y súbelos en otro PC. Incluye enlaces, grupos, iconos, ajustes y fondo.</p>
+    </div>
+
+    <div class="settings-grid">
+    <div class="setting-card">
+      <h3>Descargar perfiles</h3>
+      <p class="hint">Marca los que quieras pasar a otro equipo.</p>
+      <div id="dlList" class="pf-list"></div>
+      <label class="check-line">
+        <input type="checkbox" id="dlGraphic" checked>
+        <span>Incluir ajustes y fondo</span>
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-dl-sel">Descargar selección</button>
+        <button class="btn btn-secondary" id="btn-dl-all">Descargar todos</button>
+      </div>
+    </div>
+
+    <div class="setting-card">
+      <h3>Subir perfiles</h3>
+      <p class="hint">Elige el archivo JSON descargado en el otro PC.</p>
+      <div class="btn-row" style="margin-bottom: 12px;">
+        <button class="btn btn-secondary" id="btn-up-pick">Seleccionar archivo</button>
+      </div>
+      <input type="file" id="upFile" accept="application/json,.json" style="display: none;">
+      <div id="upPanel" style="display: none; flex-direction: column; gap: 8px;">
+        <div class="setting-group" style="margin: 0;">
+          <label>Perfiles del archivo</label>
+          <div id="upList" class="pf-list"></div>
+        </div>
+        <div class="setting-group" style="margin: 0;">
+          <label for="upDest">Perfil destino</label>
+          <select id="upDest"></select>
+        </div>
+        <div class="setting-group" style="margin: 0;">
+          <label for="upMode">Modo de importación</label>
+          <select id="upMode">
+            <option value="fusionar">Fusionar (sumar sin borrar)</option>
+            <option value="reemplazar">Reemplazar (sustituir destino)</option>
+            <option value="nuevo">Crear como perfil nuevo</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-up-apply">Aplicar importación</button>
+      </div>
+    </div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="../Index.html" class="back-btn">← Volver a inicio</a>
+    </div>
+  </div>
+
+  <script src="../utils/dialogs.js"></script>
+  <script src="../src/js/movil.js"></script>
+  <script src="../src/js/almacen.js"></script>
+  <script src="../src/js/persistencia.js"></script>
+  <script src="../src/js/rotate.js"></script>
+  <script src="../src/js/cat-remote.js"></script>
+  <script src="../src/js/profile-cfg.js"></script>
+  <script src="../src/js/respaldo.js"></script>
+  <script src="../src/js/i18n-pages.js"></script>
+  <script src="../src/js/config-loader.js"></script>
+  <script src="../src/js/snow.js"></script>
+  <script src="../src/js/modals.js"></script>
+  <script src="../src/js/menu.js"></script>
+  <script src="../src/js/perfiles-page.js"></script>
+</body>
+</html>

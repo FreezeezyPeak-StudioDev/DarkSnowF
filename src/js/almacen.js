@@ -55,6 +55,17 @@
   }
 
   /**
+   * Avisa al modulo de persistencia para espejar a `chrome.storage.local`.
+   */
+  function avisarEspejo() {
+    try {
+      if (typeof window !== 'undefined' && window.DSPersistencia && window.DSPersistencia.espejarPronto) {
+        window.DSPersistencia.espejarPronto();
+      }
+    } catch (e) {}
+  }
+
+  /**
    * Guarda un valor en el almacenamiento verificando la escritura.
    * Relee la clave para confirmar que el dato quedó persistido.
    * @param {string} clave Clave de `localStorage`.
@@ -68,7 +79,9 @@
       return false;
     }
     try {
-      return localStorage.getItem(clave) === valorTexto;
+      var ok = localStorage.getItem(clave) === valorTexto;
+      if (ok) avisarEspejo();
+      return ok;
     } catch (err) {
       return false;
     }
@@ -173,23 +186,37 @@
    * Obtiene las categorías de un perfil.
    * @param {string} perfilId Identificador del perfil.
    * @param {string} nombreGeneral Nombre localizado para la categoría base.
-   * @returns {Array<{id:string, name:string}>} Categorías garantizadas.
+   * @returns {Array<{id:string, name:string, icon:string}>} Categorías garantizadas.
    */
+  /** Iconos aleatorios para categorías nuevas (incluida la primera). */
+  var ICONOS_CATEGORIA = ['📁','⭐','🎮','🎨','💼','📚','🎵','🎬','💻','🌐','⚽','🛠️','💡','📷','🍔','✈️','🎓','💰','❤️','🐱','🚗','🏠','🌙','☀️','❄️','🔥','🌊','🍕','🎧','📝','🎯','🧩','🚀','🎭','🏆','🌈'];
+  function iconoCategoriaAlAzar() {
+    try {
+      return ICONOS_CATEGORIA[Math.floor(Math.random() * ICONOS_CATEGORIA.length)];
+    } catch (err) {
+      return '📁';
+    }
+  }
+
   function obtenerCategorias(perfilId, nombreGeneral) {
     var lista = leerJSON(PREFIJO_CATEGORIAS + perfilId, null);
     var base = nombreGeneral || 'General';
     if (!Array.isArray(lista) || lista.length === 0) {
-      var inicial = [{ id: 'general', name: base }];
-      guardarJSON(PREFIJO_CATEGORIAS + perfilId, inicial);
-      return inicial;
-    }
+      var inicial = [{ id: 'general', name: base, icon: iconoCategoriaAlAzar() }];
+       guardarJSON(PREFIJO_CATEGORIAS + perfilId, inicial);
+       return inicial;
+     }
     var normalizadas = lista.filter(function (c) {
       return c && typeof c.id === 'string';
     }).map(function (c) {
-      return { id: c.id, name: String(c.name !== undefined ? c.name : c.nombre !== undefined ? c.nombre : base).slice(0, 24) };
+      return {
+        id: c.id,
+        name: String(c.name !== undefined ? c.name : c.nombre !== undefined ? c.nombre : base).slice(0, 24),
+        icon: typeof (c.icon !== undefined ? c.icon : c.icono) === 'string' ? (c.icon !== undefined ? c.icon : c.icono) : ''
+      };
     });
     if (!normalizadas.some(function (c) { return c.id === 'general'; })) {
-      normalizadas.unshift({ id: 'general', name: base });
+      normalizadas.unshift({ id: 'general', name: base, icon: iconoCategoriaAlAzar() });
     }
     return normalizadas;
   }

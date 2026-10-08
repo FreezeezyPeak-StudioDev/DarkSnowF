@@ -14,6 +14,7 @@
       settings: 'Configuración',
       credits: 'Créditos',
       license: 'Licencia',
+      profileSettings: 'Perfil ajustes',
       help: 'Ayuda',
       networks: 'Redes',
       soonTitle: 'Próximamente',
@@ -27,6 +28,7 @@
       settings: 'Settings',
       credits: 'Credits',
       license: 'License',
+      profileSettings: 'Profile settings',
       help: 'Help',
       networks: 'Socials',
       soonTitle: 'Coming soon',
@@ -51,32 +53,55 @@
   }
 
   function svgIcon(kind) {
+    const NS = 'xmlns="http://www.w3.org/2000/svg"';
     if (kind === 'youtube') {
-      return '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000"/><path d="M10 9.5v5l4.5-2.5L10 9.5z" fill="#fff"/></svg>';
+      return `<svg ${NS} viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000"/><path d="M10 9.5v5l4.5-2.5L10 9.5z" fill="#fff"/></svg>`;
     }
     if (kind === 'github') {
-      return '<svg viewBox="0 0 24 24" fill="#e8eef8"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.54 2.87 8.39 6.84 9.75.5.1.68-.22.68-.49 0-.24-.01-1.04-.02-1.89-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.93.86.09-.67.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.04 1.03-2.76-.1-.26-.45-1.3.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.46.1 2.72.64.72 1.03 1.64 1.03 2.76 0 3.94-2.34 4.81-4.57 5.07.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.2 10.2 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>';
+      return `<svg ${NS} viewBox="0 0 24 24" fill="#e8eef8"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.54 2.87 8.39 6.84 9.75.5.1.68-.22.68-.49 0-.24-.01-1.04-.02-1.89-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.93.86.09-.67.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.04 1.03-2.76-.1-.26-.45-1.3.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.46.1 2.72.64.72 1.03 1.64 1.03 2.76 0 3.94-2.34 4.81-4.57 5.07.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.2 10.2 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>`;
     }
     if (kind === 'gitlab') {
-      return '<svg viewBox="0 0 24 24" fill="none"><polygon points="12,2 15,8 20,6 21,13 18,19 12,22 6,19 3,13 4,6 9,8" fill="#FC6D26"/><polygon points="12,9 15,12 12,17 9,12" fill="#fff"/></svg>';
+      return `<svg ${NS} viewBox="0 0 24 24" fill="none"><polygon points="12,2 15,8 20,6 21,13 18,19 12,22 6,19 3,13 4,6 9,8" fill="#FC6D26"/><polygon points="12,9 15,12 12,17 9,12" fill="#fff"/></svg>`;
     }
     if (kind === 'itch') {
-      return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="11" rx="4" fill="#FA5C5C"/><circle cx="9" cy="12.5" r="1.6" fill="#fff"/><circle cx="15" cy="12.5" r="1.6" fill="#fff"/></svg>';
+      return `<svg ${NS} viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="11" rx="4" fill="#FA5C5C"/><circle cx="9" cy="12.5" r="1.6" fill="#fff"/><circle cx="15" cy="12.5" r="1.6" fill="#fff"/></svg>`;
     }
     if (kind === 'web') {
-      return '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#2E9BD6"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="#fff" stroke-width="1.6" fill="none"/><line x1="3.5" y1="12" x2="20.5" y2="12" stroke="#fff" stroke-width="1.6"/></svg>';
+      return `<svg ${NS} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#2E9BD6"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="#fff" stroke-width="1.6" fill="none"/><line x1="3.5" y1="12" x2="20.5" y2="12" stroke="#fff" stroke-width="1.6"/></svg>`;
     }
-    return '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#FF7139"/><path d="M12 2a10 10 0 0 0-3.9.8c2.5.6 3.4 2.4 3.1 4.3-.3 2.1-2 3.4-2.3 5.5-.3 2.3 1.2 4.6 3.1 5.9a10 10 0 0 0 0-16.5z" fill="#FFBD4F"/><circle cx="12" cy="12" r="4.5" fill="#0060DF"/></svg>';
+    return `<svg ${NS} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#FF7139"/><path d="M12 2a10 10 0 0 0-3.9.8c2.5.6 3.4 2.4 3.1 4.3-.3 2.1-2 3.4-2.3 5.5-.3 2.3 1.2 4.6 3.1 5.9a10 10 0 0 0 0-16.5z" fill="#FFBD4F"/><circle cx="12" cy="12" r="4.5" fill="#0060DF"/></svg>`;
   }
 
-  // Icono como nodo (sin innerHTML: los textos son fijos por tipo).
+  // Icono como nodo: parseo XML con xmlns (sin innerHTML, apto para AMO).
   function svgEl(kind) {
     try {
       const doc = new DOMParser().parseFromString(svgIcon(kind), 'image/svg+xml');
       const node = doc.documentElement;
-      if (node && node.nodeName !== 'parsererror') return node;
+      if (node && node.nodeName && node.nodeName.toLowerCase() === 'svg') {
+        return document.importNode(node, true);
+      }
     } catch (e) {}
-    return document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const fb = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    fb.setAttribute('viewBox', '0 0 24 24');
+    return fb;
+  }
+
+  /**
+   * Crea un SVG en línea sin innerHTML (apto para AMO).
+   * @param {string} paths Contenido interno ya validado (solo este módulo).
+   * @returns {SVGSVGElement} Nodo SVG listo para insertar.
+   */
+  function inlineSvg(paths) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    paths.forEach((p) => {
+      const el = document.createElementNS(NS, p[0]);
+      Object.keys(p[1]).forEach((k) => el.setAttribute(k, p[1][k]));
+      svg.appendChild(el);
+    });
+    return svg;
   }
 
   function build() {
@@ -102,7 +127,10 @@
     backBtn.className = 'shared-back';
     backBtn.title = 'Atrás';
     backBtn.setAttribute('aria-label', 'Volver atrás');
-    backBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="#111111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5 L8 12 L15 19" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    backBtn.appendChild(inlineSvg([
+      ['path', { d: 'M15 5 L8 12 L15 19', stroke: '#111111', 'stroke-width': '7', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }],
+      ['path', { d: 'M15 5 L8 12 L15 19', stroke: '#FFFFFF', 'stroke-width': '3.5', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }]
+    ]));
     backBtn.addEventListener('click', () => {
       close();
     });
@@ -118,6 +146,7 @@
       { file: 'config.html', href: base + 'pages/config.html', icon: ui + 'Editar.svg', text: d.settings, modal: null },
       { file: 'credit.html', href: base + 'pages/credit.html', icon: ui + 'Creditos.svg', text: d.credits, modal: null },
       { file: 'license.html', href: base + 'pages/License.html', icon: ui + 'Licencia.svg', text: d.license, modal: null },
+      { file: 'perfiles.html', href: base + 'pages/perfiles.html', icon: ui + 'Guadar.svg', text: d.profileSettings, modal: null },
       { file: '__ayuda__', href: null, icon: ui + 'Ayuda.svg', text: d.help, modal: 'help' }
     ];
 

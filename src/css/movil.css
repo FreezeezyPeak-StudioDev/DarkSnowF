@@ -1,0 +1,111 @@
+/* movil.css - Ajustes táctiles activados con `html.ds-movil`. */
+
+html.ds-movil body {
+  padding: 12px 10px 28px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.ds-movil .main-container {
+  max-width: 560px;
+  padding: 0 4px;
+}
+
+html.ds-movil .logo-container img {
+  width: 76px;
+  height: 76px;
+}
+
+html.ds-movil .logo-container h1 {
+  font-size: 1.35rem;
+}
+
+html.ds-movil .clock-corner {
+  position: static;
+  display: inline-flex;
+  margin: 0 auto 10px;
+}
+
+html.ds-movil .search-container {
+  position: sticky;
+  top: 8px;
+  z-index: 50;
+}
+
+html.ds-movil .search-wrapper {
+  min-height: 52px;
+}
+
+html.ds-movil .search-input {
+  font-size: 16px;
+}
+
+html.ds-movil .search-engine-dropdown {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  top: auto;
+  bottom: 12px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+html.ds-movil .cats-bar {
+  position: sticky;
+  top: 72px;
+  z-index: 40;
+  background: rgba(7, 11, 18, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 6px;
+}
+
+html.ds-movil .shortcuts-container {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+html.ds-movil .shortcut-card {
+  width: 100%;
+  min-height: 104px;
+  padding: 14px 8px;
+}
+
+html.ds-movil .shortcut-icon {
+  width: 44px;
+  height: 44px;
+}
+
+html.ds-movil .shortcut-btn,
+html.ds-movil .cat-mini,
+html.ds-movil .cats-arrow,
+html.ds-movil .sidebar-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+html.ds-movil [data-sidebar] {
+  width: min(86vw, 320px);
+}
+
+html.ds-movil .modal {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 16px 16px 0 0;
+}
+
+html.ds-movil .modal-overlay.active {
+  align-items: flex-end;
+}
+
+html.ds-movil .modal-overlay.active .modal {
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 360px) {
+  html.ds-movil .shortcuts-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+}

@@ -28,6 +28,16 @@
   /** Identificador de aplicación esperado en los JSON válidos. */
   var APP_ID = 'darksnowf';
 
+  /** Icono aleatorio para la categoría general restaurada. */
+  var ICONOS_GENERAL = ['📁','⭐','🎮','🎨','💼','📚','🎵','🎬','💻','🌐','⚽','🛠️','💡','📷','🍔','✈️','🎓','💰','❤️','🐱','🚗','🏠','🌙','☀️','❄️','🔥','🌊','🍕','🎧','📝','🎯','🧩','🚀','🎭','🏆','🌈'];
+  function iconoRespaldoAlAzar() {
+    try {
+      return ICONOS_GENERAL[Math.floor(Math.random() * ICONOS_GENERAL.length)];
+    } catch (err) {
+      return '📁';
+    }
+  }
+
   /**
    * Normaliza una URL para comparar duplicados.
    * @param {string} url URL original.
@@ -116,7 +126,7 @@
         };
       }).filter(function (a) { return typeof a.url === 'string' && a.url.trim(); }),
       categorias: (Array.isArray(categorias) ? categorias : []).map(function (c) {
-        return { id: c.id, nombre: c.name !== undefined ? c.name : (c.nombre || c.id) };
+        return { id: c.id, nombre: c.name !== undefined ? c.name : (c.nombre || c.id), icono: c.icon !== undefined ? c.icon : (c.icono || '') };
       }),
       categoriaSeleccionada: seleccion,
       tema: tm.tema,
@@ -330,15 +340,19 @@
         var actualesCats = JSON.parse(localStorage.getItem(claveCats) || '[]') || [];
         var mapa = {};
         (Array.isArray(actualesCats) ? actualesCats : []).forEach(function (c) {
-          if (c && c.id) mapa[c.id] = { id: c.id, name: c.name || c.nombre || c.id };
+          if (c && c.id) mapa[c.id] = { id: c.id, name: c.name || c.nombre || c.id, icon: c.icon || c.icono || '' };
         });
         (pexp.categorias || []).forEach(function (c) {
-          if (c && c.id && !mapa[c.id]) mapa[c.id] = { id: c.id, name: (c.nombre || c.name || c.id) };
+          if (c && c.id) {
+            var iconoImp = c.icono || c.icon || '';
+            if (!mapa[c.id]) mapa[c.id] = { id: c.id, name: (c.nombre || c.name || c.id), icon: iconoImp };
+            else if (!mapa[c.id].icon && iconoImp) mapa[c.id].icon = iconoImp;
+          }
         });
         var lista = Object.keys(mapa).map(function (k) { return mapa[k]; });
-        if (lista.length === 0) lista = [{ id: 'general', name: 'General' }];
+        if (lista.length === 0) lista = [{ id: 'general', name: 'General', icon: iconoRespaldoAlAzar() }];
         if (!lista.some(function (c) { return c.id === 'general'; })) {
-          lista.unshift({ id: 'general', name: 'General' });
+          lista.unshift({ id: 'general', name: 'General', icon: iconoRespaldoAlAzar() });
         }
         localStorage.setItem(claveCats, JSON.stringify(lista));
         if (pexp.categoriaSeleccionada && lista.some(function (c) { return c.id === pexp.categoriaSeleccionada; })) {
@@ -358,6 +372,12 @@
 
     try {
       localStorage.setItem('profiles', JSON.stringify(listaPerfiles));
+    } catch (err) {}
+    // Espejar a chrome.storage.local para que nada se pierda.
+    try {
+      if (typeof window !== 'undefined' && window.DSPersistencia && window.DSPersistencia.espejarPronto) {
+        window.DSPersistencia.espejarPronto();
+      }
     } catch (err) {}
     return { importados: importados, perfilesCreados: creados };
   }

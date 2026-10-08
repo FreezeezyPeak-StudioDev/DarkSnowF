@@ -305,6 +305,7 @@ loadWallpaper();
 let shortcuts = [];
 let editingShortcutId = null;
 let draggedShortcutId = null;
+let draggedCatId = null;
 let shortcutWasDragged = false;
 let categories = [];
 let selectedCat = 'general';
@@ -314,6 +315,56 @@ let lastDropTarget = null;
 
 function defaultCatName() {
   return (typeof t === 'function') ? t('catGeneral') : 'General';
+}
+
+/** Pool de iconos por defecto para categorías (cosas variadas). */
+const CAT_ICON_POOL = ['📁','⭐','🎮','🎨','💼','📚','🎵','🎬','💻','🌐','⚽','🛠️','💡','📷','🍔','✈️','🎓','💰','❤️','🐱','🚗','🏠','🌙','☀️','❄️','🔥','🌊','🍕','🎧','📝','🎯','🧩','🚀','🎭','🏆','🌈'];
+
+/**
+ * Icono aleatorio para una categoría, evitando repetir los ya usados.
+ * @returns {string} Emoji.
+ */
+function randomCatIcon() {
+  try {
+    const usados = new Set((categories || []).map((c) => c && c.icon).filter(Boolean));
+    const libres = CAT_ICON_POOL.filter((e) => !usados.has(e));
+    const pool = libres.length > 0 ? libres : CAT_ICON_POOL;
+    return pool[Math.floor(Math.random() * pool.length)];
+  } catch (e) {
+    return CAT_ICON_POOL[Math.floor(Math.random() * CAT_ICON_POOL.length)];
+  }
+}
+
+/**
+ * Indica si el icono de categoría es una imagen (URL/data) o emoji.
+ * @param {string} icon Icono guardado.
+ * @returns {boolean} Verdadero si es imagen.
+ */
+function catIconIsImage(icon) {
+  try {
+    if (typeof DSIconos !== 'undefined' && DSIconos.esUrlIconoValida) {
+      return DSIconos.esUrlIconoValida(icon);
+    }
+  } catch (e) {}
+  return typeof icon === 'string' && /^(https?:|data:image\/|blob:|assets\/)/i.test(icon.trim());
+}
+
+/**
+ * Normaliza las categorías: garantiza icono (aleatorio si falta).
+ * @returns {boolean} Verdadero si cambió algo.
+ */
+function ensureCatIcons() {
+  let changed = false;
+  categories.forEach((c) => {
+    if (!c.icon || (typeof c.icon === 'string' && !c.icon.trim())) {
+      c.icon = randomCatIcon();
+      changed = true;
+    } else if (typeof c.icon === 'string') {
+      const v = c.icon.trim().slice(0, 200);
+      if (v !== c.icon) { c.icon = v; changed = true; }
+    }
+  });
+  return changed;
 }
 
 /**
@@ -367,7 +418,7 @@ function loadCategories() {
     } catch (e) {}
   }
   if (categories.length === 0) {
-    categories = [{ id: 'general', name: defaultCatName() }];
+    categories = [{ id: 'general', name: defaultCatName(), icon: randomCatIcon() }];
     saveCategories();
   }
   // Migrar accesos sin categoría válida a General
@@ -381,9 +432,13 @@ function loadCategories() {
   if (changed) saveShortcuts();
   // General siempre existe y va primera
   if (!categories.some((c) => c.id === 'general')) {
-    categories.unshift({ id: 'general', name: defaultCatName() });
+    categories.unshift({ id: 'general', name: defaultCatName(), icon: randomCatIcon() });
     saveCategories();
   }
+  // Iconos: los antiguos sin icono reciben uno aleatorio (cosas)
+  try {
+    if (ensureCatIcons()) saveCategories();
+  } catch (e) {}
   try {
     const sel = localStorage.getItem(selKey());
     selectedCat = (sel && categories.some((c) => c.id === sel)) ? sel : categories[0].id;
@@ -405,8 +460,14 @@ function setSelectedCat(id) {
   if (!categories.some((c) => c.id === id)) return;
   selectedCat = id;
   try {
-    localStorage.setItem(selKey(), id);
-  } catch (e) {}
+    if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarTexto) {
+      DSAlmacen.guardarTexto(selKey(), id);
+    } else {
+      localStorage.setItem(selKey(), id);
+    }
+  } catch (e) {
+    try { localStorage.setItem(selKey(), id); } catch (e2) {}
+  }
   renderCats();
   renderShortcuts();
 }
@@ -416,6 +477,34 @@ function stepCat(dir) {
   if (i < 0) return;
   const n = (i + dir + categories.length) % categories.length;
   setSelectedCat(categories[n].id);
+}
+
+/**
+ * Mueve una categoría a la posición de otra (drag & drop como los enlaces).
+ * General queda siempre primera y no se puede mover.
+ * @param {string} dragId Categoría arrastrada.
+ * @param {string} targetId Categoría destino.
+ * @param {boolean} after Si va después (mitad derecha) o antes.
+ */
+function moveCategoryTo(dragId, targetId, after) {
+  if (!dragId || !targetId || dragId === targetId) return;
+  if (dragId === 'general') return;
+  const from = categories.findIndex((c) => c.id === dragId);
+  let to = categories.findIndex((c) => c.id === targetId);
+  if (from < 0 || to < 0) return;
+  const [moved] = categories.splice(from, 1);
+  to = categories.findIndex((c) => c.id === targetId);
+  const insertAt = after ? to + 1 : to;
+  categories.splice(insertAt, 0, moved);
+  // General siempre primera (por si acaso)
+  const gi = categories.findIndex((c) => c.id === 'general');
+  if (gi > 0) {
+    const [g] = categories.splice(gi, 1);
+    categories.unshift(g);
+  }
+  if (!saveCategories()) return;
+  cancelPendingReload();
+  renderCats();
 }
 
 function renderCats() {
@@ -437,18 +526,37 @@ function renderCats() {
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'cat-tab' + (cat.id === selectedCat ? ' active' : '');
+    tab.dataset.catId = cat.id;
+    // General queda fija primera; el resto se puede arrastrar como los enlaces.
+    if (cat.id !== 'general') tab.draggable = true;
+    // Icono (imagen o emoji, como en accesos). Vacío = aleatorio ya asignado.
+    const iconVal = (cat.icon && String(cat.icon).trim()) ? String(cat.icon).trim() : randomCatIcon();
+    if (catIconIsImage(iconVal)) {
+      const im = document.createElement('img');
+      im.src = iconVal;
+      im.alt = '';
+      im.className = 'cat-ico-img';
+      im.onerror = () => { im.remove(); };
+      tab.appendChild(im);
+    } else {
+      const em = document.createElement('span');
+      em.className = 'cat-ico';
+      em.textContent = iconVal.slice(0, 8);
+      tab.appendChild(em);
+    }
     const name = document.createElement('span');
     name.textContent = cat.name;
     tab.appendChild(name);
 
+    // Editar: nombre + icono en el mismo botón (vale para General también)
     const rn = document.createElement('img');
     rn.src = 'assets/Texturas/UI/Editar.svg';
     rn.alt = '';
     rn.className = 'cat-mini';
-    rn.title = (typeof t === 'function') ? t('catRenameTitle') : 'Renombrar';
+    rn.title = (typeof t === 'function') ? t('catRenameTitle') : 'Editar (nombre e icono)';
     rn.addEventListener('click', (e) => {
       e.stopPropagation();
-      renameCategory(cat.id);
+      editCategory(cat.id);
     });
     tab.appendChild(rn);
 
@@ -466,18 +574,65 @@ function renderCats() {
     }
 
     tab.addEventListener('click', () => setSelectedCat(cat.id));
-    // Soltar un acceso encima mueve el acceso a esa categoría
+
+    tab.addEventListener('dragstart', (e) => {
+      if (cat.id === 'general') {
+        e.preventDefault();
+        return;
+      }
+      if (e.target.closest('.cat-mini')) {
+        e.preventDefault();
+        return;
+      }
+      draggedCatId = cat.id;
+      tab.classList.add('dragging');
+      tabs.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/cat-id', cat.id); } catch (err) {}
+    });
+
+    tab.addEventListener('dragend', () => {
+      draggedCatId = null;
+      tabs.classList.remove('is-dragging');
+      tabs.querySelectorAll('.cat-tab.dragging, .cat-tab.drag-target').forEach((el) => {
+        el.classList.remove('dragging', 'drag-target');
+      });
+    });
+
+    // Soltar un acceso encima mueve el acceso a esa categoría.
+    // Arrastrar otra categoría encima la reordena (izquierda/derecha).
     tab.addEventListener('dragover', (e) => {
-      if (!draggedShortcutId) return;
+      if (draggedCatId && draggedCatId !== cat.id && cat.id !== 'general') {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const box = tab.getBoundingClientRect();
+        const after = (e.clientX - box.left) > box.width / 2;
+        tab.classList.add('drag-target');
+        tab.dataset.dropAfter = after ? '1' : '0';
+        return;
+      }
+      if (!draggedShortcutId || draggedCatId) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       tab.classList.add('drag-target');
     });
     tab.addEventListener('dragleave', () => {
       tab.classList.remove('drag-target');
+      try { delete tab.dataset.dropAfter; } catch (err) {}
     });
     tab.addEventListener('drop', (e) => {
-      if (!draggedShortcutId) return;
+      // Reordenar categorías entre sí
+      if (draggedCatId && draggedCatId !== cat.id) {
+        e.preventDefault();
+        e.stopPropagation();
+        const after = tab.dataset.dropAfter === '1';
+        tab.classList.remove('drag-target');
+        try { delete tab.dataset.dropAfter; } catch (err) {}
+        moveCategoryTo(draggedCatId, cat.id, after);
+        draggedCatId = null;
+        return;
+      }
+      if (!draggedShortcutId || draggedCatId) return;
       e.preventDefault();
       tab.classList.remove('drag-target');
       const sc = shortcuts.find((s) => s.id === draggedShortcutId);
@@ -486,6 +641,7 @@ function renderCats() {
         saveShortcuts();
       }
       lastDropTarget = null;
+      shortcutDropCommitted = true;
       setSelectedCat(cat.id);
     });
     tabs.appendChild(tab);
@@ -498,6 +654,32 @@ function renderCats() {
   add.title = (typeof t === 'function') ? t('catCreate') : 'Nueva categoría';
   add.addEventListener('click', createCategory);
   tabs.appendChild(add);
+
+  // Soltar en el hueco final = mover al final
+  tabs.addEventListener('dragover', (e) => {
+    if (!draggedCatId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  });
+  tabs.addEventListener('drop', (e) => {
+    if (!draggedCatId) return;
+    // Si cayó sobre una pestaña, ese drop ya lo gestionó.
+    if (e.target && e.target.closest && e.target.closest('.cat-tab:not(.add)')) return;
+    e.preventDefault();
+    const from = categories.findIndex((c) => c.id === draggedCatId);
+    if (from < 0) return;
+    const [moved] = categories.splice(from, 1);
+    categories.push(moved);
+    const gi = categories.findIndex((c) => c.id === 'general');
+    if (gi > 0) {
+      const [g] = categories.splice(gi, 1);
+      categories.unshift(g);
+    }
+    if (!saveCategories()) return;
+    cancelPendingReload();
+    draggedCatId = null;
+    renderCats();
+  });
 
   const next = document.createElement('button');
   next.className = 'cats-arrow';
@@ -516,77 +698,179 @@ function renderCats() {
   }
 }
 
+let catDialogOpen = false;
+
 async function createCategory() {
-  const msg = (typeof t === 'function') ? t('catCreate') : 'Nombre de la categoría:';
-  const name = await DSDialogs.prompt(msg, {
-    title: (typeof t === 'function') ? t('catCreate') : 'Nueva categoría',
-    placeholder: (typeof t === 'function') ? t('catGeneral') : 'General'
-  });
+  if (catDialogOpen) return;
+  catDialogOpen = true;
+  cancelPendingReload();
+  let name = null;
+  let iconInput = null;
+  try {
+    const msg = (typeof t === 'function') ? t('catCreate') : 'Nombre de la categoría:';
+    name = await DSDialogs.prompt(msg, {
+      title: (typeof t === 'function') ? t('catCreate') : 'Nueva categoría',
+      placeholder: (typeof t === 'function') ? t('catGeneral') : 'General'
+    });
+    // ESC / Cancelar / vacío en nombre = no hacer nada.
+    if (name === null || name === undefined || !String(name).trim()) return;
+    const iconMsg = 'Icono: elige uno abajo, escribe un emoji, pega URL o pulsa Subir imagen. Vacío = aleatorio:';
+    iconInput = await DSDialogs.prompt(iconMsg, {
+      title: 'Icono de categoría',
+      placeholder: '🎮 o https://... (vacío = 🎲 aleatorio)',
+      allowUpload: true,
+      uploadText: 'Subir imagen',
+      emojiPool: (typeof CAT_ICON_POOL !== 'undefined') ? CAT_ICON_POOL : []
+    });
+    // Solo Cancelar / ESC / clic fuera aborta. Vacío ("") = aleatorio.
+    if (iconInput === null || iconInput === undefined) return;
+  } finally {
+    catDialogOpen = false;
+  }
   if (!name || !name.trim()) return;
-  const id = 'c' + Date.now();
-  categories.push({ id, name: name.trim().slice(0, 24) });
-  saveCategories();
+  const id = 'c' + Date.now() + Math.floor(Math.random() * 1000);
+  // "" (Aceptar vacío) = aleatorio. Solo null cancela (ya filtrado arriba).
+  const icon = await resolveCatIconInput(iconInput === '' ? '' : iconInput);
+  categories.push({ id, name: name.trim().slice(0, 24), icon });
+  if (!saveCategories()) {
+    categories = categories.filter((c) => c.id !== id);
+    const msg = (typeof t === 'function') ? t('quotaMsg') : 'No se pudo guardar: almacenamiento lleno.';
+    try { await DSDialogs.confirm(msg, { title: 'DarkSnowF', confirmText: 'OK' }); } catch (e) {}
+    return;
+  }
   setSelectedCat(id);
-  acceptReload();
 }
 
-async function renameCategory(id) {
+/**
+ * Convierte lo escrito en el prompt de icono a valor guardable.
+ * Acepta emoji, URL válida, ARCHIVO (subir) o AUTO/vacío (aleatorio).
+ * @param {string} entrada Texto del usuario.
+ * @returns {Promise<string>} Icono final.
+ */
+async function resolveCatIconInput(entrada) {
+  const texto = String(entrada || '').trim();
+  if (!texto || texto.toUpperCase() === 'AUTO' || texto === '🎲') return randomCatIcon();
+  if (texto.toUpperCase() === 'ARCHIVO') {
+    try {
+      const archivo = await elegirArchivoImagen();
+      if (!archivo) return randomCatIcon();
+      return await DSIconos.archivoADataUrl(archivo);
+    } catch (e) {
+      return randomCatIcon();
+    }
+  }
+  try {
+    if (typeof DSIconos !== 'undefined' && DSIconos.esUrlIconoValida && DSIconos.esUrlIconoValida(texto)) {
+      return texto;
+    }
+  } catch (e) {}
+  // Emoji o texto corto (máx 8 caracteres para no romper la pestaña)
+  return texto.slice(0, 8);
+}
+
+/**
+ * Edita una categoría (nombre + icono en el mismo botón, incluido General).
+ * 1º pide el nombre, 2º el icono (emoji, URL o Subir imagen).
+ * Cancelar/ESC en cualquier paso aborta todo sin cambios.
+ * @param {string} id Identificador de la categoría.
+ */
+async function editCategory(id) {
+  if (catDialogOpen) return;
   const cat = categories.find((c) => c.id === id);
   if (!cat) return;
-  const msg = (typeof t === 'function') ? t('catRename') : 'Nuevo nombre:';
-  const name = await DSDialogs.prompt(msg, {
-    title: (typeof t === 'function') ? t('catRename') : 'Renombrar categoría',
-    defaultValue: cat.name
-  });
-  if (!name || !name.trim()) return;
-  cat.name = name.trim().slice(0, 24);
-  saveCategories();
+  catDialogOpen = true;
+  cancelPendingReload();
+  let name = null;
+  let entrada;
+  try {
+    const msg = (typeof t === 'function') ? t('catRename') : 'Nuevo nombre:';
+    name = await DSDialogs.prompt(msg, {
+      title: (typeof t === 'function') ? t('catRename') : 'Editar categoría',
+      defaultValue: cat.name
+    });
+    // Cancelar/ESC/vacío en el nombre = abortar sin tocar nada.
+    if (name === null || name === undefined || !String(name).trim()) return;
+    entrada = await DSDialogs.prompt(
+      'Icono actual: ' + (catIconIsImage(cat.icon) ? '(imagen)' : (cat.icon || '(aleatorio)')) + '. Elige uno abajo, escribe emoji/URL o pulsa Subir imagen (vacío = mantener, AUTO = aleatorio):',
+      {
+        title: 'Icono de categoría',
+        defaultValue: catIconIsImage(cat.icon) ? cat.icon : (cat.icon || ''),
+        placeholder: '🎮 o https://...',
+        allowUpload: true,
+        uploadText: 'Subir imagen',
+        emojiPool: (typeof CAT_ICON_POOL !== 'undefined') ? CAT_ICON_POOL : []
+      }
+    );
+    // Cancelar/ESC en el icono = abortar sin tocar nada (ni el nombre).
+    if (entrada === null || entrada === undefined) return;
+  } finally {
+    catDialogOpen = false;
+  }
+  cat.name = String(name).trim().slice(0, 24);
+  // "" = mantener el actual. El resto se resuelve (URL, emoji, AUTO, ARCHIVO).
+  if (String(entrada).trim() !== '') {
+    cat.icon = await resolveCatIconInput(entrada);
+  }
+  if (!saveCategories()) {
+    try { await DSDialogs.confirm('No se pudo guardar: almacenamiento lleno.', { title: 'DarkSnowF', confirmText: 'OK' }); } catch (e) {}
+    return;
+  }
   renderCats();
-  acceptReload();
 }
 
 async function deleteCategory(id) {
+  if (catDialogOpen) return;
   const cat = categories.find((c) => c.id === id);
   if (!cat || cat.id === 'general' || categories.length <= 1) return;
   const items = shortcuts.filter((s) => s.catId === id);
 
-  if (items.length === 0) {
-    const msg = ((typeof t === 'function') ? t('catDelete') : '¿Eliminar la categoría "{name}"?').replace('{name}', cat.name);
-    const confirmed = await DSDialogs.confirm(msg, {
-      title: (typeof t === 'function') ? t('catDeleteTitle') : 'Eliminar categoría',
-      confirmText: (typeof t === 'function') ? t('delete') : 'Eliminar',
-      isDanger: true
-    });
-    if (!confirmed) return;
-    categories = categories.filter((c) => c.id !== id);
-  } else {
-    const msg = ((typeof t === 'function') ? t('catDeleteWith') : 'La categoría "{name}" tiene {n} accesos. Aceptar = eliminarlos también. Cancelar = moverlos a otra categoría.').replace('{name}', cat.name).replace('{n}', items.length);
-    const confirmed = await DSDialogs.confirm(msg, {
-      title: (typeof t === 'function') ? t('catDeleteTitle') : 'Eliminar categoría',
-      confirmText: (typeof t === 'function') ? t('deleteAll') : 'Eliminar todo',
-      cancelText: (typeof t === 'function') ? t('move') : 'Mover',
-      isDanger: true
-    });
-    
-    if (confirmed) {
-      categories = categories.filter((c) => c.id !== id);
-      shortcuts = shortcuts.filter((s) => s.catId !== id);
-      saveShortcuts();
-    } else {
-      const others = categories.filter((c) => c.id !== id);
-      const list = others.map((c) => c.name).join(', ');
-      const target = await DSDialogs.prompt(((typeof t === 'function') ? t('catMoveTo') : 'Mover accesos a ({list}):').replace('{list}', list), {
-        title: (typeof t === 'function') ? t('moveTitle') : 'Mover a categoría',
-        defaultValue: others[0].name,
-        placeholder: others[0].name
+  catDialogOpen = true;
+  cancelPendingReload();
+  try {
+    if (items.length === 0) {
+      const msg = ((typeof t === 'function') ? t('catDelete') : '¿Eliminar la categoría "{name}"?').replace('{name}', cat.name);
+      const confirmed = await DSDialogs.confirm(msg, {
+        title: (typeof t === 'function') ? t('catDeleteTitle') : 'Eliminar categoría',
+        confirmText: (typeof t === 'function') ? t('delete') : 'Eliminar',
+        isDanger: true
       });
-      if (!target) return;
-      const dest = others.find((c) => c.name.toLowerCase() === target.trim().toLowerCase());
-      if (!dest) return;
-      items.forEach((s) => { s.catId = dest.id; });
+      // true = eliminar. false/null (Cancelar, ESC, clic fuera) = abortar.
+      if (confirmed !== true) return;
       categories = categories.filter((c) => c.id !== id);
-      saveShortcuts();
+    } else {
+      const msg = ((typeof t === 'function') ? t('catDeleteWith') : 'La categoría "{name}" tiene {n} accesos. Aceptar = eliminarlos también. Cancelar = moverlos a otra categoría.').replace('{name}', cat.name).replace('{n}', items.length);
+      const choice = await DSDialogs.confirm(msg, {
+        title: (typeof t === 'function') ? t('catDeleteTitle') : 'Eliminar categoría',
+        confirmText: (typeof t === 'function') ? t('deleteAll') : 'Eliminar todo',
+        cancelText: (typeof t === 'function') ? t('move') : 'Mover',
+        isDanger: true
+      });
+      // null (ESC / clic fuera) = abortar sin tocar nada.
+      // false (botón Mover) = pedir destino. true = eliminar todo.
+      if (choice === null || choice === undefined) return;
+
+      if (choice === true) {
+        categories = categories.filter((c) => c.id !== id);
+        shortcuts = shortcuts.filter((s) => s.catId !== id);
+        saveShortcuts();
+      } else {
+        const others = categories.filter((c) => c.id !== id);
+        const list = others.map((c) => c.name).join(', ');
+        const target = await DSDialogs.prompt(((typeof t === 'function') ? t('catMoveTo') : 'Mover accesos a ({list}):').replace('{list}', list), {
+          title: (typeof t === 'function') ? t('moveTitle') : 'Mover a categoría',
+          defaultValue: others[0].name,
+          placeholder: others[0].name
+        });
+        if (!target) return;
+        const dest = others.find((c) => c.name.toLowerCase() === target.trim().toLowerCase());
+        if (!dest) return;
+        items.forEach((s) => { s.catId = dest.id; });
+        categories = categories.filter((c) => c.id !== id);
+        saveShortcuts();
+      }
     }
+  } finally {
+    catDialogOpen = false;
   }
 
   saveCategories();
@@ -598,7 +882,6 @@ async function deleteCategory(id) {
   }
   renderCats();
   renderShortcuts();
-  acceptReload();
 }
 
 const shortcutsContainer = document.querySelector('[data-shortcuts]');
@@ -1120,13 +1403,25 @@ function renderShortcuts() {
     editBtn.className = 'shortcut-btn edit';
     editBtn.dataset.edit = shortcut.id;
     editBtn.title = 'Editar';
-    editBtn.innerHTML = '<img src="assets/Texturas/UI/Editar.svg" alt="Editar">';
+    const editImg = document.createElement('img');
+    editImg.src = 'assets/Texturas/UI/Editar.svg';
+    editImg.alt = 'Editar';
+    editBtn.appendChild(editImg);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'shortcut-btn delete';
     deleteBtn.dataset.delete = shortcut.id;
     deleteBtn.title = 'Eliminar';
-    deleteBtn.innerHTML = '<img class="icon-closed" src="assets/Texturas/UI/BasureroCerrado.svg" alt="Eliminar"><img class="icon-open" src="assets/Texturas/UI/BasureroAbierto.svg" alt="Eliminar">';
+    const delClosed = document.createElement('img');
+    delClosed.className = 'icon-closed';
+    delClosed.src = 'assets/Texturas/UI/BasureroCerrado.svg';
+    delClosed.alt = 'Eliminar';
+    const delOpen = document.createElement('img');
+    delOpen.className = 'icon-open';
+    delOpen.src = 'assets/Texturas/UI/BasureroAbierto.svg';
+    delOpen.alt = 'Eliminar';
+    deleteBtn.appendChild(delClosed);
+    deleteBtn.appendChild(delOpen);
 
     actions.append(editBtn, deleteBtn);
 
@@ -1169,7 +1464,9 @@ function renderShortcuts() {
 
       draggedShortcutId = shortcut.id;
       shortcutWasDragged = true;
+      shortcutDropCommitted = false;
       card.classList.add('dragging');
+      shortcutsContainer.classList.add('is-dragging');
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', String(shortcut.id));
     });
@@ -1177,9 +1474,17 @@ function renderShortcuts() {
     card.addEventListener('dragend', () => {
       draggedShortcutId = null;
       lastDropTarget = null;
+      shortcutsContainer.classList.remove('is-dragging');
       document.querySelectorAll('.shortcut-card.dragging, .shortcut-card.drag-over').forEach(el => {
         el.classList.remove('dragging', 'drag-over');
       });
+
+      // Si se cancelo con ESC (sin drop), revertir el DOM al orden guardado
+      // para no dejar la vista movida sin guardar.
+      if (!shortcutDropCommitted) {
+        try { renderShortcuts(); } catch (e) {}
+      }
+      shortcutDropCommitted = false;
 
       setTimeout(() => {
         shortcutWasDragged = false;
@@ -1237,6 +1542,8 @@ function getDragAfterShortcut(container, x, y) {
   }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
 }
 
+let shortcutDropCommitted = false;
+
 function saveShortcutOrderFromDom() {
   const orderedIds = [...shortcutsContainer.querySelectorAll('.shortcut-card:not(.add-new)')]
     .map(card => Number(card.dataset.shortcutId));
@@ -1244,6 +1551,11 @@ function saveShortcutOrderFromDom() {
   const ordered = orderedIds
     .map(id => shortcuts.find(shortcut => shortcut.id === id))
     .filter(Boolean);
+
+  // Si el DOM no contiene todos los de la categoria visible, no tocar nada
+  // (evita mandar enlaces a otra categoria por un drop a medias).
+  const visibleCount = shortcuts.filter((s) => (s.catId || 'general') === selectedCat).length;
+  if (ordered.length !== visibleCount) return;
 
   // Reordenar solo dentro de la categoría visible, conservar el resto
   let i = 0;
@@ -1261,17 +1573,24 @@ shortcutsContainer.addEventListener('dragover', (e) => {
   if (!draggedShortcutId) return;
 
   e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
   const draggingCard = shortcutsContainer.querySelector('.shortcut-card.dragging');
   const addCard = shortcutsContainer.querySelector('.shortcut-card.add-new');
-  const afterElement = getDragAfterShortcut(shortcutsContainer, e.clientX, e.clientY);
-
   if (!draggingCard) return;
 
-  // Solo mover si el destino cambió (evita el temblor)
-  const target = afterElement || addCard;
-  if (target === lastDropTarget) return;
-  lastDropTarget = target;
-  shortcutsContainer.insertBefore(draggingCard, target);
+  const afterElement = getDragAfterShortcut(shortcutsContainer, e.clientX, e.clientY);
+
+  // Insercion estable: si ya esta en su sitio, no mover (evita el temblor
+  // adelante/atras al arrastrar el 3 al puesto del 5 en filas de 5).
+  if (afterElement == null) {
+    if (draggingCard.nextSibling !== addCard) {
+      shortcutsContainer.insertBefore(draggingCard, addCard);
+    }
+  } else {
+    if (draggingCard === afterElement) return;
+    if (draggingCard.nextSibling === afterElement) return;
+    shortcutsContainer.insertBefore(draggingCard, afterElement);
+  }
 });
 
 shortcutsContainer.addEventListener('drop', (e) => {
@@ -1279,6 +1598,7 @@ shortcutsContainer.addEventListener('drop', (e) => {
 
   e.preventDefault();
   lastDropTarget = null;
+  shortcutDropCommitted = true;
   saveShortcutOrderFromDom();
 });
 
@@ -1361,17 +1681,17 @@ function editShortcut(id) {
 }
 
 async function deleteShortcut(id) {
+  cancelPendingReload();
   const msg = (typeof t === 'function') ? t('confirmDelete') : '¿Estás seguro de eliminar este acceso rápido?';
   const confirmed = await DSDialogs.confirm(msg, {
     title: (typeof t === 'function') ? t('deleteTitle') : 'Eliminar acceso',
     confirmText: (typeof t === 'function') ? t('delete') : 'Eliminar',
     isDanger: true
   });
-  if (confirmed) {
+  if (confirmed === true) {
     shortcuts = shortcuts.filter(s => s.id !== id);
     saveShortcuts();
     renderShortcuts();
-    acceptReload();
   }
 }
 
@@ -1425,7 +1745,6 @@ shortcutForm.addEventListener('submit', (e) => {
   renderShortcuts();
   iconoTemporalAcceso = '';
   closeModal();
-  acceptReload();
 });
 
 modalCancel.addEventListener('click', closeModal);
@@ -1489,6 +1808,8 @@ modalOverlay.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // Si hay un diálogo DSDialogs abierto, él gestiona el ESC.
+    try { if (document.querySelector('.ds-confirm-overlay')) return; } catch (err) {}
     if (modalOverlay.classList.contains('active')) {
       closeModal();
     }
@@ -1652,14 +1973,22 @@ sidebar.querySelectorAll('a').forEach(link => {
 
 // ==================== RECARGA AUTOMÁTICA ====================
 
-// Recarga automática tras aceptar un cambio
+// Recarga automática tras aceptar un cambio (cancelable: un diálogo nuevo
+// o un ESC la anulan para no recargar en mitad de una edición).
+let pendingReloadTimer = null;
 function acceptReload() {
-  setTimeout(() => {
+  try { clearTimeout(pendingReloadTimer); } catch (e) {}
+  pendingReloadTimer = setTimeout(() => {
     try {
       if (typeof window.dsReloadVerified === 'function') window.dsReloadVerified();
       else window.location.reload();
     } catch (e) {}
   }, 350);
+}
+
+function cancelPendingReload() {
+  try { clearTimeout(pendingReloadTimer); } catch (e) {}
+  pendingReloadTimer = null;
 }
 
 function refreshSearchPlaceholder() {
@@ -1697,6 +2026,7 @@ if (helpModal) {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && helpModal && helpModal.classList.contains('active')) {
+    try { if (document.querySelector('.ds-confirm-overlay')) return; } catch (err) {}
     helpModal.classList.remove('active');
   }
 });

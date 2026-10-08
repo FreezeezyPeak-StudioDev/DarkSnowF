@@ -45,36 +45,43 @@ const DSDialogs = {
       confirmBtn.className = `ds-confirm-btn ${isDanger ? 'danger' : 'primary'}`;
       confirmBtn.textContent = confirmText;
       confirmBtn.type = 'button';
+
+      let settled = false;
+      const escHandler = (e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          done(null);
+        }
+      };
       
       const cleanup = () => {
+        try { document.removeEventListener('keydown', escHandler, true); } catch (e) {}
         overlay.classList.remove('active');
         setTimeout(() => overlay.remove(), 200);
       };
+
+      const done = (value) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve(value);
+      };
       
       cancelBtn.addEventListener('click', () => {
-        cleanup();
-        resolve(false);
+        done(false);
       });
       
       confirmBtn.addEventListener('click', () => {
-        cleanup();
-        resolve(true);
+        done(true);
       });
       
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
-          cleanup();
-          resolve(false);
+          done(null);
         }
       });
       
-      document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') {
-          cleanup();
-          resolve(false);
-          document.removeEventListener('keydown', escHandler);
-        }
-      });
+      document.addEventListener('keydown', escHandler, true);
       
       actions.appendChild(cancelBtn);
       actions.appendChild(confirmBtn);
@@ -104,7 +111,10 @@ const DSDialogs = {
         defaultValue = '',
         placeholder = '',
         confirmText = 'Aceptar',
-        cancelText = 'Cancelar'
+        cancelText = 'Cancelar',
+        allowUpload = false,
+        uploadText = 'Subir imagen',
+        emojiPool = []
       } = options;
 
       const overlay = document.createElement('div');
@@ -139,21 +149,51 @@ const DSDialogs = {
       confirmBtn.className = 'ds-confirm-btn primary';
       confirmBtn.textContent = confirmText;
       confirmBtn.type = 'button';
+
+      let settled = false;
+      const escHandler = (e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          done(null);
+        }
+      };
       
       const cleanup = () => {
+        try { document.removeEventListener('keydown', escHandler, true); } catch (e) {}
         overlay.classList.remove('active');
         setTimeout(() => overlay.remove(), 200);
       };
-      
-      const submit = () => {
-        const value = input.value.trim();
+
+      const done = (value) => {
+        if (settled) return;
+        settled = true;
         cleanup();
-        resolve(value || null);
+        resolve(value);
+      };
+      
+      // Aceptar devuelve el texto tal cual ("" = vacío).
+      // Solo Cancelar / ESC / clic fuera devuelven null.
+      const submit = () => {
+        done(input.value.trim());
+      };
+
+      const readFileAsDataUrl = (archivo) => {
+        return new Promise((res, rej) => {
+          try {
+            if (typeof DSIconos !== 'undefined' && DSIconos.archivoADataUrl) {
+              DSIconos.archivoADataUrl(archivo).then(res, rej);
+              return;
+            }
+          } catch (e) {}
+          const lector = new FileReader();
+          lector.onload = () => res(lector.result);
+          lector.onerror = () => rej(new Error('No se pudo leer.'));
+          lector.readAsDataURL(archivo);
+        });
       };
       
       cancelBtn.addEventListener('click', () => {
-        cleanup();
-        resolve(null);
+        done(null);
       });
       
       confirmBtn.addEventListener('click', submit);
@@ -163,29 +203,76 @@ const DSDialogs = {
           e.preventDefault();
           submit();
         }
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+        }
       });
       
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
-          cleanup();
-          resolve(null);
+          done(null);
         }
       });
       
-      document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') {
-          cleanup();
-          resolve(null);
-          document.removeEventListener('keydown', escHandler);
-        }
-      });
-      
-      actions.appendChild(cancelBtn);
-      actions.appendChild(confirmBtn);
+      document.addEventListener('keydown', escHandler, true);
+
       modal.appendChild(titleEl);
       modal.appendChild(messageEl);
+      actions.appendChild(cancelBtn);
+      let uploadBtn = null;
+      let fileInput = null;
+      if (allowUpload) {
+        uploadBtn = document.createElement('button');
+        uploadBtn.className = 'ds-confirm-btn secondary';
+        uploadBtn.textContent = uploadText;
+        uploadBtn.type = 'button';
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', async () => {
+          const archivo = fileInput.files && fileInput.files[0];
+          if (!archivo) return;
+          uploadBtn.disabled = true;
+          uploadBtn.textContent = 'Cargando...';
+          try {
+            const dataUrl = await readFileAsDataUrl(archivo);
+            done(dataUrl);
+          } catch (err) {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = uploadText;
+            input.placeholder = (err && err.message) ? err.message : 'Imagen no válida';
+          }
+        });
+      }
       modal.appendChild(input);
+      if (fileInput) modal.appendChild(fileInput);
+      // Mini-menú selector de emojis (clic = rellenar el campo)
+      if (Array.isArray(emojiPool) && emojiPool.length > 0) {
+        const pickLabel = document.createElement('p');
+        pickLabel.className = 'ds-emoji-label';
+        pickLabel.textContent = '😊 Elige un emoji:';
+        const grid = document.createElement('div');
+        grid.className = 'ds-emoji-grid';
+        emojiPool.forEach((em) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ds-emoji-btn';
+          b.textContent = em;
+          b.title = em;
+          b.addEventListener('click', () => {
+            input.value = em;
+            input.focus();
+          });
+          grid.appendChild(b);
+        });
+        modal.appendChild(pickLabel);
+        modal.appendChild(grid);
+      }
       modal.appendChild(actions);
+      if (uploadBtn) actions.appendChild(uploadBtn);
+      actions.appendChild(confirmBtn);
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
       

@@ -337,6 +337,23 @@ body::before {
   transform: scale(0.96);
 }
 
+/* Durante el arrastre: sin transiciones ni saltos por hover (evita temblor) */
+.shortcuts-container.is-dragging .shortcut-card {
+  transition: none !important;
+}
+
+.shortcuts-container.is-dragging .shortcut-card:not(.dragging):hover {
+  transform: none !important;
+}
+
+.cat-tab.dragging {
+  opacity: 0.45;
+}
+
+.cats-tabs.is-dragging .cat-tab {
+  transition: none !important;
+}
+
 .shortcut-card.drag-over {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.35);
@@ -1161,6 +1178,25 @@ select:focus-visible {
   background: rgba(0, 102, 178, 0.3);
 }
 
+.cat-ico {
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
+  /* Forzar presentación a color (algunas tipografías los dejaban en B/N) */
+  font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Symbol", sans-serif;
+  font-variant-emoji: emoji;
+  filter: none;
+}
+
+.cat-ico-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  border-radius: 5px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+}
+
 /* Saludo de temporada + burbuja de frases del logo */
 .season-greet {
   margin-top: 6px;
@@ -1240,7 +1276,9 @@ select:focus-visible {
   cursor: pointer;
 }
 
-.cat-tab:hover .cat-mini {
+.cat-tab:hover .cat-mini,
+.cat-tab.active .cat-mini,
+.cat-tab:focus-within .cat-mini {
   display: block;
 }
 

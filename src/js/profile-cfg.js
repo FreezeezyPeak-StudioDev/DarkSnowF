@@ -24,6 +24,11 @@
     try {
       localStorage.setItem(KEY, JSON.stringify(all));
     } catch (e) {}
+    try {
+      if (typeof window !== 'undefined' && window.DSPersistencia && window.DSPersistencia.espejarPronto) {
+        window.DSPersistencia.espejarPronto();
+      }
+    } catch (e) {}
   };
 
   const activeId = () => {
