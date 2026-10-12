@@ -53,6 +53,76 @@
   }
 
   /**
+   * Normaliza una URL importada a http(s) segura.
+   * Rechaza `javascript:`, `data:`, `vbscript:`, `file:` y `blob:`;
+   * a dominios pelados o `www.` les añade `https://`.
+   * @param {string} url URL original.
+   * @returns {string} URL segura o cadena vacía si no es navegable.
+   */
+  function normalizarUrlImportada(url) {
+    try {
+      var texto = String(url || '').trim().replace(/[\r\n\t]+/g, '');
+      if (!texto) return '';
+      if (/^(javascript|data|vbscript|file|blob)\s*:/i.test(texto)) return '';
+      if (/^https?:\/\//i.test(texto)) {
+        var u = new URL(texto);
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+        return u.href;
+      }
+      if (texto.indexOf(' ') !== -1) return '';
+      if (/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?(\/\S*)?$/i.test(texto)) {
+        return 'https://' + texto;
+      }
+      return '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  /**
+   * Nombres genéricos que SÍ se pueden renombrar al importar
+   * (perfil nuevo de otro PC que cae sobre un perfil sin personalizar).
+   * @param {string} nombre Nombre actual del destino.
+   * @returns {boolean} Verdadero si es un nombre por defecto.
+   */
+  function esNombreGenerico(nombre) {
+    try {
+      var n = String(nombre || '').trim().toLowerCase();
+      return n === '' || n === 'personal' || n === 'general' || n === 'perfil' ||
+        n === 'profile' || n === 'importado' || n === 'imported';
+    } catch (err) {
+      return true;
+    }
+  }
+
+  /**
+   * Nombre del perfil importado (acepta `nombre` y `name`).
+   * @param {Object} pexp Perfil del JSON.
+   * @returns {string} Nombre recortado.
+   */
+  function nombreImportado(pexp) {
+    try {
+      return String(pexp.nombre !== undefined ? pexp.nombre : (pexp.name || 'Importado')).slice(0, 20) || 'Importado';
+    } catch (err) {
+      return 'Importado';
+    }
+  }
+
+  /**
+   * Icono del perfil importado (acepta `icono` e `icon`).
+   * @param {Object} pexp Perfil del JSON.
+   * @returns {string} Icono o cadena vacía.
+   */
+  function iconoImportado(pexp) {
+    try {
+      var v = (typeof pexp.icono === 'string' && pexp.icono) ? pexp.icono : (typeof pexp.icon === 'string' ? pexp.icon : '');
+      return v || '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  /**
    * Lee el ajuste global de configuración.
    * @returns {Object} Configuración `darkSnowFConfig`.
    */
@@ -244,7 +314,7 @@
     });
     var combinados = (actuales || []).slice();
     (nuevos || []).forEach(function (a) {
-      var url = String(a.url || '').trim();
+      var url = normalizarUrlImportada(a.url);
       if (!url) return;
       if (vistos[normalizarUrl(url)]) return;
       vistos[normalizarUrl(url)] = true;
@@ -266,7 +336,8 @@
    */
   function aFormatoInterno(accesos) {
     return (accesos || []).map(function (a) {
-      var url = String(a.url || '').trim();
+      var url = normalizarUrlImportada(a.url);
+      if (!url) return null;
       return {
         id: Date.now() + Math.floor(Math.random() * 1000000),
         name: String(a.nombre !== undefined ? a.nombre : (a.name || url)),
@@ -274,7 +345,7 @@
         icon: typeof a.icono === 'string' && a.icono ? a.icono : (typeof a.icon === 'string' ? a.icon : ''),
         catId: a.categoria || a.catId || 'general'
       };
-    }).filter(function (a) { return a.url; });
+    }).filter(function (a) { return a && a.url; });
   }
 
   /**
@@ -302,12 +373,26 @@
       var destino = null;
       if (modo === 'nuevo' || !destinoId) {
         var nuevoId = 'p' + Date.now() + Math.floor(Math.random() * 1000);
-        destino = { id: nuevoId, name: String(pexp.nombre || 'Importado').slice(0, 20), icon: pexp.icono || '' };
+        destino = { id: nuevoId, name: nombreImportado(pexp), icon: iconoImportado(pexp) };
         listaPerfiles.push(destino);
         creados += 1;
       } else {
         destino = listaPerfiles.find(function (p) { return p.id === destinoId; });
         if (!destino) return;
+        // Conservar el nombre del perfil importado (p. ej. "casa"):
+        // en `reemplazar` el destino pasa a ser el importado; en `fusionar`
+        // se renombra solo si el destino aún tiene nombre genérico.
+        var nomImp = nombreImportado(pexp);
+        var nomDest = destino.name !== undefined ? destino.name : destino.nombre;
+        if (modo === 'reemplazar' || esNombreGenerico(nomDest)) {
+          if (destino.name !== undefined) destino.name = nomImp;
+          else destino.nombre = nomImp;
+        }
+        var icoImp = iconoImportado(pexp);
+        if (icoImp && !((destino.icon || destino.icono) && String(destino.icon || destino.icono).trim())) {
+          if (destino.icon !== undefined || destino.nombre === undefined) destino.icon = icoImp;
+          else destino.icono = icoImp;
+        }
       }
       var claveAtajos = 'shortcuts_' + destino.id;
       var claveCats = 'shortcutCategories_' + destino.id;

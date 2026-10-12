@@ -128,6 +128,11 @@
     }
 
     function animate() {
+      // Pestaña oculta: no dibujar (ahorra CPU/batería); se retoma sola.
+      if (document.hidden) {
+        requestAnimationFrame(animate);
+        return;
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach(p => {
@@ -161,14 +166,18 @@
   if (settings.enableClickSound !== false) {
     const clickableSelector = 'a, button, input, select, textarea, label, .btn, .shortcut-card, .sidebar-button, [data-engine], [role="button"]';
     let lastClickSound = 0;
+    let clickAudio = null; // un solo objeto reutilizado (menos CPU/memoria)
     document.addEventListener('click', (e) => {
       if (e.target.closest(clickableSelector)) {
         const now = Date.now();
         if (now - lastClickSound < 180) return; // un solo clic (label+input disparan dos)
         lastClickSound = now;
-        const clickSound = new Audio(assetUrl('Fx/Click2.mp3'));
-        clickSound.volume = settings.clickVolume || 0.35;
-        clickSound.play().catch(e => console.log('Sonido no disponible'));
+        try {
+          if (!clickAudio) clickAudio = new Audio(assetUrl('Fx/Click2.mp3'));
+          clickAudio.volume = settings.clickVolume || 0.35;
+          try { clickAudio.currentTime = 0; } catch (e2) {}
+          clickAudio.play().catch(e => console.log('Sonido no disponible'));
+        } catch (e) {}
       }
     });
     console.log('Sonidos de click habilitados');
@@ -207,7 +216,8 @@
         bg.style.zIndex = '-1';
         bg.style.pointerEvents = 'none';
         const full = (typeof resolveWp === 'function') ? resolveWp(wp) : wp;
-        bg.style.backgroundImage = "url('" + full + "')";
+        const cssU = (typeof dsCssUrl === 'function') ? dsCssUrl(full) : String(full || '').replace(/'/g, '%27');
+        bg.style.backgroundImage = "url('" + cssU + "')";
         bg.style.backgroundPosition = 'center';
         bg.style.backgroundRepeat = 'no-repeat';
         bg.style.backgroundSize = (size === 'custom' && w && h) ? (w + 'px ' + h + 'px') : 'cover';
@@ -289,6 +299,8 @@
     let cursorNoticed = false;
     const detectForeignCursor = () => {
       if (cursorNoticed) return;
+      // Si ya se preguntó por CatCursorF en esta sesión, no insistir.
+      try { if (window.__dsCatAvisoMostrado) { cursorNoticed = true; return; } } catch (e) {}
       try {
         const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
         if (s.cursorChoice) return;
@@ -305,6 +317,10 @@
     };
     const showCursorNotice = () => {
       if (document.getElementById('ds-cursor-notice')) return;
+      try {
+        if (window.__dsCatAvisoMostrado) return;
+        window.__dsCatAvisoMostrado = true;
+      } catch (e) {}
       const lang = (settings.lang === 'en' || settings.lang === 'es')
         ? settings.lang
         : ((typeof window.dsSysLang === 'function') ? window.dsSysLang() : 'es');
@@ -398,6 +414,11 @@
       const yesBtn = en ? 'Yes, apply' : 'Sí, aplicar';
       const noBtn = en ? 'No, keep the previous cursor' : 'No, mantener el cursor anterior';
       const ask = async () => {
+        // Solo un aviso por sesión: el otro detector ya no insistirá.
+        try {
+          if (window.__dsCatAvisoMostrado) return;
+          window.__dsCatAvisoMostrado = true;
+        } catch (e) {}
         let yes = true;
         try {
           if (typeof DSDialogs !== 'undefined' && DSDialogs.confirm) {
@@ -407,6 +428,9 @@
         try {
           const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
           s.catCursors = !!yes;
+          // Guardar la decisión (antes solo se guardaba catCursors y el otro
+          // aviso volvía a aparecer al abrir el navegador).
+          s.cursorChoice = yes ? 'cats' : 'default';
           localStorage.setItem('darkSnowFConfig', JSON.stringify(s));
         } catch (e) {}
         if (yes) {

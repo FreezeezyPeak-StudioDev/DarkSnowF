@@ -49,6 +49,25 @@ const Clock = {
     return true;
   },
 
+  // Ajustes cacheados 5 s: update() corre cada segundo y no debe
+  // leer el disco en cada tick (ralentiza el PC).
+  cfgCache: null,
+  cfgTs: 0,
+
+  leerAjustes() {
+    const ahora = Date.now();
+    if (this.cfgCache && (ahora - this.cfgTs) < 5000) return this.cfgCache;
+    let s = {};
+    try {
+      s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}') || {};
+    } catch (e) {
+      s = {};
+    }
+    this.cfgCache = s;
+    this.cfgTs = ahora;
+    return s;
+  },
+
   /**
    * Actualizar hora y fecha
    */
@@ -56,12 +75,7 @@ const Clock = {
     if (!this.element) return;
 
     const now = this.now();
-    let settings = {};
-    try {
-      settings = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
-    } catch (e) {
-      settings = {};
-    }
+    const settings = this.leerAjustes();
 
     const use24h = settings.clockFormat !== '12h'; // Por defecto 24h (militar)
     const showSeconds = settings.clockSeconds !== false; // Por defecto con segundos

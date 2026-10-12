@@ -37,10 +37,69 @@
     }
   };
 
+  // Caché local de sugerencias (memoria + localStorage con TTL):
+  // evita repetir la misma petición y reduce el consumo de internet.
+  const SUG_TTL = 6 * 60 * 60 * 1000;
+  const SUG_MAX = 60;
+  const sugMem = new Map();
+  const sugLeerDisco = (clave) => {
+    try {
+      const crudo = localStorage.getItem('ds_suggest_' + clave);
+      if (!crudo) return null;
+      const obj = JSON.parse(crudo);
+      if (!obj || !Array.isArray(obj.lista) || (Date.now() - (obj.ts || 0)) > SUG_TTL) {
+        try { localStorage.removeItem('ds_suggest_' + clave); } catch (e2) {}
+        return null;
+      }
+      return obj.lista;
+    } catch (e) {
+      return null;
+    }
+  };
+  const sugGuardarDisco = (clave, lista) => {
+    try {
+      localStorage.setItem('ds_suggest_' + clave, JSON.stringify({ ts: Date.now(), lista: lista }));
+    } catch (e) {
+      // Sin espacio: vaciar cachés viejas de sugerencias para no romper nada.
+      try {
+        const viejas = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.indexOf('ds_suggest_') === 0) viejas.push(k);
+        }
+        viejas.slice(0, Math.max(1, viejas.length - SUG_MAX + 1)).forEach((k) => {
+          try { localStorage.removeItem(k); } catch (e2) {}
+        });
+      } catch (e2) {}
+    }
+  };
+  const sugClave = (engine, q) => (engine + '|' + q.trim().toLowerCase()).slice(0, 80);
+  const sugDesdeCache = (engine, q) => {
+    const clave = sugClave(engine, q);
+    if (sugMem.has(clave)) return sugMem.get(clave);
+    const disco = sugLeerDisco(clave);
+    if (disco) {
+      if (sugMem.size > SUG_MAX) sugMem.clear();
+      sugMem.set(clave, disco);
+    }
+    return disco;
+  };
+  const sugACache = (engine, q, lista) => {
+    const clave = sugClave(engine, q);
+    if (sugMem.size > SUG_MAX) sugMem.clear();
+    sugMem.set(clave, lista);
+    sugGuardarDisco(clave, lista);
+  };
+
+  // Controlador de la petición en curso: se aborta al seguir escribiendo
+  // para no malgastar ancho de banda en respuestas que se van a descartar.
+  let ctrlEnCurso = null;
   const withTimeout = (ms) => {
+    try { if (ctrlEnCurso) ctrlEnCurso.abort(); } catch (e) {}
     const c = new AbortController();
+    ctrlEnCurso = c;
     const t = setTimeout(() => { try { c.abort(); } catch (e) {} }, ms);
-    return { signal: c.signal, done: () => clearTimeout(t) };
+    return { signal: c.signal, done: () => { clearTimeout(t); if (ctrlEnCurso === c) ctrlEnCurso = null; } };
   };
 
   const fetchJson = async (url, ms) => {
@@ -82,22 +141,25 @@
 
   const fetchSuggest = async (engine, q) => {
     try {
+      const enCache = sugDesdeCache(engine, q);
+      if (enCache) return enCache;
+      let lista = [];
       if (engine === 'google') {
         const d = await fetchJson('https://suggestqueries.google.com/complete/search?client=firefox&q=' + encodeURIComponent(q));
-        return Array.isArray(d) && Array.isArray(d[1]) ? d[1].filter((x) => typeof x === 'string') : [];
-      }
-      if (engine === 'duckduckgo') {
+        lista = Array.isArray(d) && Array.isArray(d[1]) ? d[1].filter((x) => typeof x === 'string') : [];
+      } else if (engine === 'duckduckgo') {
         const d = await fetchJson('https://duckduckgo.com/ac/?q=' + encodeURIComponent(q) + '&type=list');
         if (Array.isArray(d) && Array.isArray(d[1])) {
-          return d[1].map((x) => (typeof x === 'string' ? x : x && x.phrase)).filter(Boolean);
+          lista = d[1].map((x) => (typeof x === 'string' ? x : x && x.phrase)).filter(Boolean);
         }
-        return [];
-      }
-      if (engine === 'wikipedia') {
+      } else if (engine === 'wikipedia') {
         const d = await fetchJson('https://es.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=8&namespace=0&format=json&origin=*');
-        return Array.isArray(d) && Array.isArray(d[1]) ? d[1].filter((x) => typeof x === 'string') : [];
+        lista = Array.isArray(d) && Array.isArray(d[1]) ? d[1].filter((x) => typeof x === 'string') : [];
+      } else if (engine === 'bing') {
+        lista = await bingSuggest(q);
       }
-      if (engine === 'bing') return await bingSuggest(q);
+      sugACache(engine, q, lista);
+      return lista;
     } catch (e) {}
     return [];
   };
@@ -166,7 +228,11 @@
   input.addEventListener('input', () => {
     close();
     const q = input.value.trim();
-    if (q.length < 2) return;
+    if (q.length < 2) {
+      // Sin texto útil: abortar la petición en curso para no gastar datos.
+      try { if (ctrlEnCurso) ctrlEnCurso.abort(); } catch (e) {}
+      return;
+    }
     clearTimeout(timer);
     timer = setTimeout(async () => {
       const my = ++seq;

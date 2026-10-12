@@ -133,7 +133,8 @@
           localStorage.setItem('wallpaper', ev.target.result);
           localStorage.setItem('wallpaperSize', 'cover');
           fileName.textContent = f.name;
-          preview.style.backgroundImage = "url('" + ev.target.result + "')";
+          const cssPrev = (typeof dsCssUrl === 'function') ? dsCssUrl(ev.target.result) : String(ev.target.result || '').replace(/'/g, '%27');
+          preview.style.backgroundImage = "url('" + cssPrev + "')";
           previewBox.style.display = 'block';
           note.textContent = tr('wpSaved');
         } catch (err) {}
@@ -196,7 +197,8 @@
     function showPreview(url) {
       if (url && url !== 'default') {
         const full = (typeof resolveWp === 'function') ? resolveWp(url) : url;
-        preview.style.backgroundImage = "url('" + full + "')";
+        const cssFull = (typeof dsCssUrl === 'function') ? dsCssUrl(full) : String(full || '').replace(/'/g, '%27');
+        preview.style.backgroundImage = "url('" + cssFull + "')";
         previewBox.style.display = 'block';
       } else {
         previewBox.style.display = 'none';

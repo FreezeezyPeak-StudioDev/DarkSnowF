@@ -20,6 +20,34 @@
   /** Icono genérico cuando no se puede resolver ninguno. */
   var ICONO_VACIO = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%2270%22 font-size=%2270%22%3EW%3C/text%3E%3C/svg%3E';
 
+  // Caché de texturas de accesos (dominio -> URL de favicon) en memoria
+  // y en storage con TTL: evita recalcular y deja que el navegador reuse
+  // su caché HTTP en vez de pedir de más. Solo guarda texto (sin cuota).
+  var FAV_TTL = 30 * 24 * 60 * 60 * 1000;
+  var favMem = {};
+  function favDesdeCache(dominio) {
+    if (Object.prototype.hasOwnProperty.call(favMem, dominio)) return favMem[dominio];
+    try {
+      var crudo = localStorage.getItem('ds_fav_' + dominio);
+      if (!crudo) return null;
+      var obj = JSON.parse(crudo);
+      if (!obj || typeof obj.url !== 'string' || (Date.now() - (obj.ts || 0)) > FAV_TTL) {
+        try { localStorage.removeItem('ds_fav_' + dominio); } catch (e2) {}
+        return null;
+      }
+      favMem[dominio] = obj.url;
+      return obj.url;
+    } catch (err) {
+      return null;
+    }
+  }
+  function favACache(dominio, favUrl) {
+    favMem[dominio] = favUrl;
+    try {
+      localStorage.setItem('ds_fav_' + dominio, JSON.stringify({ ts: Date.now(), url: favUrl }));
+    } catch (err) {}
+  }
+
   /**
    * Genera la URL del favicon automático para un sitio.
    * Utiliza el servicio Google S2 a partir del dominio.
@@ -30,7 +58,11 @@
     try {
       var dominio = new URL(url).hostname;
       if (!dominio) return ICONO_VACIO;
-      return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(dominio) + '&sz=64';
+      var enCache = favDesdeCache(dominio);
+      if (enCache) return enCache;
+      var favUrl = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(dominio) + '&sz=64';
+      favACache(dominio, favUrl);
+      return favUrl;
     } catch (err) {
       return ICONO_VACIO;
     }

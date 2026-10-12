@@ -23,8 +23,9 @@
       if (!wp && typeof defaultWallpaper === 'function') wp = defaultWallpaper();
       if (!wp || wp === 'default') return;
       const full = (typeof resolveWp === 'function') ? resolveWp(wp) : wp;
+      const cssFull = (typeof dsCssUrl === 'function') ? dsCssUrl(full) : String(full || '').replace(/'/g, '%27');
       const size = (function () { try { return localStorage.getItem('wallpaperSize') || 'cover'; } catch (e) { return 'cover'; } })();
-      document.body.style.backgroundImage = "url('" + full + "')";
+      document.body.style.backgroundImage = "url('" + cssFull + "')";
       if (size === 'custom') {
         let w = null;
         let h = null;
@@ -116,6 +117,8 @@
       const img = document.createElement('img');
       img.src = avatarFor(pf.icon);
       img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
       img.onerror = () => { img.src = '../assets/Texturas/UI/Usuario.svg'; };
       const name = document.createElement('span');
       name.textContent = pf.name;
@@ -257,10 +260,14 @@
         await say('Marca al menos un perfil del archivo.');
         return;
       }
-      elegidos.forEach((p) => {
-        if (modo === 'nuevo' || elegidos.length > 1) {
-          if (modo === 'nuevo') DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
-          else DSRespaldo.aplicarImportacion([p], { modo: modo, destinoId: destino });
+      elegidos.forEach((p, idx) => {
+        if (modo === 'nuevo') {
+          DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
+        } else if (elegidos.length > 1) {
+          // Varios perfiles: el primero va al destino elegido y el resto se
+          // crea como perfiles nuevos para no mezclarlos ni perder sus nombres.
+          if (idx === 0) DSRespaldo.aplicarImportacion([p], { modo: modo, destinoId: destino });
+          else DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
         } else {
           DSRespaldo.aplicarImportacion([p], { modo: modo, destinoId: destino });
         }

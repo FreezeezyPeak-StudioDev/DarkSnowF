@@ -39,6 +39,12 @@ function resolveWp(url) {
   return p.indexOf('/pages/') !== -1 ? '../' + url : url;
 }
 
+// Escapa una URL para usarla dentro de url('...') en CSS:
+// evita que comillas o saltos de línea rompan el estilo (inyección CSS).
+function dsCssUrl(url) {
+  return String(url || '').replace(/'/g, '%27').replace(/"/g, '%22').replace(/[\r\n]/g, '');
+}
+
 function getRotatedWallpaper() {
   let cfg = {};
   try {

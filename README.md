@@ -14,7 +14,7 @@
 
 <div align="center">
 
-![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v1.1.1-blue?style=for-the-badge&logo=firefox)
+![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v1.1.2-blue?style=for-the-badge&logo=firefox)
 
 ## DarkSnowF
 
@@ -59,7 +59,7 @@ Experiencia oscura, personalizable y completa. Buscador multi-motor, accesos rá
 DarkSnowF/
 ├── Index.html                  ← inicio (buscador, accesos, categorías, logo)
 ├── popup.html                  ← mini menú del icono (redes, perfiles, ventana)
-├── manifest.json               ← MV3 v1.1.1 (newtab, homepage, fondo worker+scripts)
+├── manifest.json               ← MV3 v1.1.2 (newtab, homepage, fondo worker+scripts)
 ├── .vscode/settings.json       ← solo editor, excluido del XPI
 ├── pages/
 │   ├── config.html             ← ajustes, perfiles, exportar/importar TXT-JSON
@@ -92,7 +92,7 @@ DarkSnowF/
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
 ├── utils/dialogs.js            ← diálogos (confirm, prompt, subida de imagen, selector de emojis)
 ├── themes/ (oscuro, claro)     ← temas
-└── versions/ (V1.0, V1.1.0, V1.1.1) ← paquetes XPI
+└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2) ← paquetes XPI
 ```
 ### Cómo Usar
 
@@ -157,7 +157,7 @@ Dark, customizable, complete experience. Multi-engine search, draggable shortcut
 DarkSnowF/
 ├── Index.html                  ← home (search, shortcuts, categories, logo)
 ├── popup.html                  ← toolbar popup (socials, profiles, window)
-├── manifest.json               ← MV3 v1.1.1 (newtab, homepage, worker+scripts background)
+├── manifest.json               ← MV3 v1.1.2 (newtab, homepage, worker+scripts background)
 ├── .vscode/settings.json       ← editor only, excluded from XPI
 ├── pages/
 │   ├── config.html             ← settings, profiles, TXT-JSON backup
@@ -190,7 +190,7 @@ DarkSnowF/
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
 ├── utils/dialogs.js            ← dialogs (confirm, prompt, image upload, emoji picker)
 ├── themes/ (oscuro, claro)     ← themes
-└── versions/ (V1.0, V1.1.0, V1.1.1) ← XPI packages
+└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2) ← XPI packages
 ```
 
 

@@ -552,6 +552,8 @@ function bindControls() {
         uimg.src = '../assets/Texturas/UI/Usuario.svg';
       }
       uimg.alt = '';
+      uimg.loading = 'lazy';
+      uimg.decoding = 'async';
       uimg.style.objectFit = 'cover';
       uimg.style.borderRadius = '50%';
       const label = document.createElement('span');
@@ -841,11 +843,15 @@ function bindControls() {
         DSRespaldo.aplicarImportacion(elegidos, { modo: modo, destinoId: destino });
       } else if (modo === 'nuevo' || elegidos.length > 1) {
         // Varios perfiles o modo nuevo: cada uno a su propio destino.
-        elegidos.forEach((p) => {
+        elegidos.forEach((p, idx) => {
           if (modo === 'nuevo') {
             DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
-          } else {
+          } else if (idx === 0) {
+            // El primero va al destino elegido; el resto como perfiles nuevos
+            // para no mezclarlos ni perder sus nombres.
             DSRespaldo.aplicarImportacion([p], { modo: modo, destinoId: destino });
+          } else {
+            DSRespaldo.aplicarImportacion([p], { modo: 'nuevo' });
           }
         });
       } else {

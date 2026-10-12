@@ -35,6 +35,18 @@ const wallpaperPreview = document.querySelector('[data-wallpaper-preview]');
 const previewContainer = document.getElementById('preview-container');
 const fileNameDisplay = document.getElementById('file-name');
 
+/**
+ * Escapa una URL para `url('...')` en CSS (usa dsCssUrl si está disponible).
+ * @param {string} u URL original.
+ * @returns {string} URL segura para CSS.
+ */
+function cssUrl(u) {
+  try {
+    if (typeof dsCssUrl === 'function') return dsCssUrl(u);
+  } catch (e) {}
+  return String(u || '').replace(/'/g, '%27').replace(/"/g, '%22').replace(/[\r\n]/g, '');
+}
+
 // Cargar fondo guardado (o rotado)
 function loadWallpaper() {
   let saved = null;
@@ -53,7 +65,7 @@ function loadWallpaper() {
 
   if (saved && saved !== 'default') {
     const full = (typeof resolveWp === 'function') ? resolveWp(saved) : saved;
-    document.body.style.backgroundImage = `url('${full}')`;
+    document.body.style.backgroundImage = `url('${cssUrl(full)}')`;
     document.body.style.backgroundSize = savedSize;
     
     if (savedSize === 'custom' && savedWidth && savedHeight) {
@@ -87,7 +99,7 @@ function saveWallpaper(url, size, width, height) {
     const ok1 = guardar('wallpaper', url);
     const ok2 = guardar('wallpaperSize', size);
     const full = (typeof resolveWp === 'function') ? resolveWp(url) : url;
-    document.body.style.backgroundImage = `url('${full}')`;
+    document.body.style.backgroundImage = `url('${cssUrl(full)}')`;
     document.body.style.backgroundSize = size;
 
     if (size === 'custom' && width && height) {
@@ -205,7 +217,7 @@ wallpaperSize.addEventListener('change', (e) => {
     const value = e.target.value;
     if (value && value !== 'default') {
       const full = (typeof resolveWp === 'function') ? resolveWp(value) : value;
-      wallpaperPreview.style.backgroundImage = `url('${full}')`;
+      wallpaperPreview.style.backgroundImage = `url('${cssUrl(full)}')`;
     previewContainer.style.display = 'block';
   } else {
     previewContainer.style.display = 'none';
@@ -220,7 +232,7 @@ wallpaperUrl.addEventListener('input', (e) => {
   const value = e.target.value.trim();
   if (value) {
     const full = (typeof resolveWp === 'function') ? resolveWp(value) : value;
-    wallpaperPreview.style.backgroundImage = `url('${full}')`;
+    wallpaperPreview.style.backgroundImage = `url('${cssUrl(full)}')`;
     previewContainer.style.display = 'block';
     wallpaperPreset.value = '';
     wallpaperFile.value = '';
@@ -234,7 +246,7 @@ wallpaperFile.addEventListener('change', (e) => {
   if (file) {
     const reader = new FileReader();
     reader.onload = (event) => {
-      wallpaperPreview.style.backgroundImage = `url('${event.target.result}')`;
+      wallpaperPreview.style.backgroundImage = `url('${cssUrl(event.target.result)}')`;
       previewContainer.style.display = 'block';
       fileNameDisplay.textContent = `Archivo: ${file.name}`;
     };
@@ -536,6 +548,9 @@ function renderCats() {
       im.src = iconVal;
       im.alt = '';
       im.className = 'cat-ico-img';
+      im.loading = 'lazy';
+      im.decoding = 'async';
+      try { im.referrerPolicy = 'no-referrer'; } catch (e) {}
       im.onerror = () => { im.remove(); };
       tab.appendChild(im);
     } else {
@@ -1125,6 +1140,8 @@ function renderProfiles() {
       const avatar = document.createElement('img');
       avatar.src = avatarDe(pf, 'assets/Texturas/UI/Usuario.svg');
       avatar.alt = '';
+      avatar.loading = 'lazy';
+      avatar.decoding = 'async';
       avatar.className = 'cat-mini';
       avatar.style.width = '18px';
       avatar.style.height = '18px';
@@ -1288,9 +1305,20 @@ async function deleteProfile(id) {
 
 function loadShortcuts() {
   loadProfiles();
-  const saved = localStorage.getItem(shortcutsKey());
+  let saved = null;
+  try {
+    saved = localStorage.getItem(shortcutsKey());
+  } catch (e) {
+    saved = null;
+  }
   if (saved) {
-    shortcuts = JSON.parse(saved);
+    try {
+      const parsed = JSON.parse(saved);
+      shortcuts = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      shortcuts = [];
+    }
+    if (shortcuts.length === 0 && saved.trim() !== '[]') saveShortcuts();
   } else {
     shortcuts = [
       {
@@ -1383,6 +1411,31 @@ function getNameFromUrl(url) {
   }
 }
 
+/**
+ * Sanea la URL de un acceso para navegar de forma segura.
+ * Solo permite http(s) (y añade https:// a dominios pelados/www).
+ * Rechaza `javascript:`, `data:`, `vbscript:`, `file:` y `blob:`.
+ * @param {string} url URL original.
+ * @returns {string|null} URL segura o nulo si no es navegable.
+ */
+function sanearUrlAcceso(url) {
+  const texto = String(url || '').trim().replace(/[\r\n\t]+/g, '');
+  if (!texto) return null;
+  if (/^(javascript|data|vbscript|file|blob)\s*:/i.test(texto)) return null;
+  if (/^https?:\/\//i.test(texto)) {
+    try {
+      const u = new URL(texto);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+      return u.href;
+    } catch (e) {
+      return null;
+    }
+  }
+  if (/^www\./i.test(texto) && texto.indexOf(' ') === -1) return 'https://' + texto;
+  if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?(\/\S*)?$/i.test(texto)) return 'https://' + texto;
+  return null;
+}
+
 const fallbackShortcutIcon = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%2270%22 font-size=%2270%22%3EW%3C/text%3E%3C/svg%3E';
 
 function renderShortcuts() {
@@ -1435,6 +1488,9 @@ function renderShortcuts() {
     }
     icon.alt = shortcut.name;
     icon.className = 'shortcut-icon';
+    icon.loading = 'lazy';
+    icon.decoding = 'async';
+    try { icon.referrerPolicy = 'no-referrer'; } catch (e) {}
     icon.onerror = () => {
       icon.onerror = null;
       icon.src = fallbackShortcutIcon;
@@ -1452,7 +1508,8 @@ function renderShortcuts() {
         return;
       }
       if (!e.target.closest('.shortcut-actions')) {
-        window.location.href = shortcut.url;
+        const destino = sanearUrlAcceso(shortcut.url);
+        if (destino) window.location.href = destino;
       }
     });
 
@@ -1695,11 +1752,23 @@ async function deleteShortcut(id) {
   }
 }
 
-shortcutForm.addEventListener('submit', (e) => {
+shortcutForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const url = urlInput.value.trim();
-  if (!url) return;
+  const urlCruda = urlInput.value.trim();
+  if (!urlCruda) return;
+  const url = sanearUrlAcceso(urlCruda);
+  if (!url) {
+    try {
+      if (typeof DSDialogs !== 'undefined' && DSDialogs.confirm) {
+        await DSDialogs.confirm(
+          'La URL debe empezar por http:// o https:// (p. ej. https://ejemplo.com).',
+          { title: 'DarkSnowF', confirmText: 'OK' }
+        );
+      }
+    } catch (err) {}
+    return;
+  }
   let name = nameInput.value.trim();
 
   if (!name) {
@@ -2059,12 +2128,29 @@ if (wallpaperModal && window.location.hash === '#fondo') {
   if (typeof Clock !== 'undefined') {
     if (cfg.clockTz && cfg.clockTz !== 'local') Clock.setTz(cfg.clockTz);
     if (cfg.syncTime === false) return;
+    // La hora de internet se cachea 6 h: 1 petición cada 6 h en vez de
+    // 1 por pestaña. Sin conexión se usa la hora del PC.
+    const SYNC_TTL = 6 * 60 * 60 * 1000;
+    try {
+      const crudo = localStorage.getItem('ds_clock_sync');
+      if (crudo) {
+        const obj = JSON.parse(crudo);
+        if (obj && typeof obj.offset === 'number' && (Date.now() - (obj.ts || 0)) < SYNC_TTL) {
+          Clock.setOffset(obj.offset);
+          return;
+        }
+      }
+    } catch (e) {}
     fetch('https://worldtimeapi.org/api/ip')
       .then((r) => r.json())
       .then((d) => {
         if (d && d.datetime) {
           const serverMs = new Date(d.datetime).getTime();
-          if (!isNaN(serverMs)) Clock.setOffset(serverMs - Date.now());
+          if (!isNaN(serverMs)) {
+            const offset = serverMs - Date.now();
+            Clock.setOffset(offset);
+            try { localStorage.setItem('ds_clock_sync', JSON.stringify({ ts: Date.now(), offset: offset })); } catch (e) {}
+          }
         }
       })
       .catch(() => {

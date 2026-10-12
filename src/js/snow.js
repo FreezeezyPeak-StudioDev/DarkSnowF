@@ -92,6 +92,11 @@
 
   let frame = 0;
   function tick() {
+    // Pestaña oculta: no dibujar (ahorra CPU/batería); se retoma sola.
+    if (document.hidden) {
+      requestAnimationFrame(tick);
+      return;
+    }
     frame++;
     // Re-ajustar cada ~2s por si cambió el zoom o la ventana
     if (frame % 120 === 0) {

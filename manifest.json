@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "DarkSnowF - Pagina de inicio personalizada",
   "short_name": "DarkSnowF",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "browser_specific_settings": {
     "gecko": {
       "id": "darksnowf@freezeezy.peak",
