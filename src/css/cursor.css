@@ -1,6 +1,5 @@
-/* Cursor compartido para Index y paginas internas.
- * Sin mano del sistema: todo usa la flecha propia (los gatos la cubren
- * con la suya cuando el pack está activo). */
+/* Cursor compartido: flecha azul estilo Windows en todo.
+ * Sin mano de clic. CatCursorF la cubre con gatos cuando el pack está activo. */
 * {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path fill="%230066B2" stroke="%23020b12" stroke-width="1.25" stroke-linejoin="round" d="M4 3l13 8-6 1.4L8 19z"/></svg>') 3 3, auto !important;
 }

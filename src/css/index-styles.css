@@ -333,8 +333,14 @@ body::before {
 }
 
 .shortcut-card.dragging {
-  opacity: 0.45;
-  transform: scale(0.96);
+  display: none;
+}
+
+.shortcut-placeholder {
+  border: 2px dashed var(--accent) !important;
+  background: rgba(0, 102, 178, 0.14) !important;
+  box-shadow: none !important;
+  pointer-events: none;
 }
 
 /* Durante el arrastre: sin transiciones ni saltos por hover (evita temblor) */
@@ -364,10 +370,6 @@ body::before {
   border-color: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 51, 102, 0.2);
-}
-
-.shortcut-card.dragging:hover {
-  transform: scale(0.96);
 }
 
 .shortcut-card.add-new {

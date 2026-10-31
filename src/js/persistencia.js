@@ -25,7 +25,8 @@
     'darkSnowFConfig', 'wallpaper', 'wallpaperSize', 'wallpaperWidth',
     'wallpaperHeight', 'wallpaperPool', 'wallpaperAnimated',
     'profiles', 'activeProfile', 'startupProfile', 'profilesMigrated',
-    'preferredSearchEngine', 'ds_profile_cfg', 'ds_build', 'ds_onboarded'
+    'preferredSearchEngine', 'ds_profile_cfg', 'ds_build', 'ds_onboarded',
+    'ccf_was_present'
   ];
 
   /**

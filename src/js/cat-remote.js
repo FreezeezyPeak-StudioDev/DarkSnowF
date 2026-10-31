@@ -87,7 +87,7 @@ function applyCatCursors(urls) {
   };
   st.textContent =
     'html body,html body *,html body *:hover,html body *:active,html body *:focus{cursor:' + u('normal', 'auto') + ',auto !important;}' +
-    "html body a,html body a *,html body a:hover,html body a:active,html body a:focus,html body button,html body button *,html body button:hover,html body button:active,html body button:focus,html body [role='button'],html body [role='button'] *,html body [role='button']:hover,html body [role='button']:active,html body [data-engine],html body [data-engine]:hover,html body [data-engine]:active{cursor:" + u('link', 'pointer') + ',pointer !important;}' +
+    "html body a,html body a *,html body a:hover,html body a:active,html body a:focus,html body button,html body button *,html body button:hover,html body button:active,html body button:focus,html body [role='button'],html body [role='button'] *,html body [role='button']:hover,html body [role='button']:active,html body [data-engine],html body [data-engine]:hover,html body [data-engine]:active,html body .shortcut-card,html body .shortcut-card *,html body .shortcut-card:hover,html body .sidebar-button,html body .sidebar-button:hover,html body .cat-tab,html body .cat-tab:hover,html body .cats-arrow,html body .shortcut-btn,html body .btn,html body .btn:hover{cursor:" + u('link', 'pointer') + ',pointer !important;}' +
     "html body input[type='text'],html body input[type='text']:hover,html body input[type='text']:focus,html body input[type='search'],html body input[type='search']:hover,html body input[type='search']:focus,html body textarea,html body textarea:hover,html body textarea:focus{cursor:" + u('texto', 'text') + ',text !important;}';
   return true;
 }

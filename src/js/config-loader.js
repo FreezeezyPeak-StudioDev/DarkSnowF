@@ -229,7 +229,7 @@
 
   // ==================== CURSOR ====================
   // Prioridad: desactivado > gatos en vivo (solo con CatCursorF) > azul propio.
-  const cursorLinks = Array.from(document.querySelectorAll('link[href*="cursor.css"]'));
+  const cursorLinks = Array.from(document.querySelectorAll('link[href*="cursor.css"], #ds-home-cursor'));
   const clearRemoteCats = () => {
     const st = document.getElementById('ds-cats-win');
     if (st && st.parentNode) st.parentNode.removeChild(st);
@@ -303,6 +303,7 @@
       try { if (window.__dsCatAvisoMostrado) { cursorNoticed = true; return; } } catch (e) {}
       try {
         const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
+        if (s.catCompatAsked === true) return;
         if (s.cursorChoice) return;
         if (s.catCursors === true) return; // nuestro pack: no es externo
       } catch (e) {}
@@ -354,6 +355,8 @@
             requestCatCursors(2500).then((urls) => {
               try {
                 const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
+                s.catCompatAsked = true;
+                s.ccfPresent = true;
                 if (urls && applyCatCursors(urls)) {
                   s.catCursors = true;
                   s.cursorChoice = 'cats';
@@ -363,6 +366,10 @@
                   blueCursor();
                 }
                 localStorage.setItem('darkSnowFConfig', JSON.stringify(s));
+                try {
+                  if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) DSAlmacen.guardarJSON('darkSnowFConfig', s);
+                  else if (window.DSPersistencia && DSPersistencia.espejarPronto) DSPersistencia.espejarPronto();
+                } catch (e2) {}
               } catch (e) {}
             });
           }
@@ -372,7 +379,13 @@
             const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
             s.catCursors = false;
             s.cursorChoice = 'default';
+            s.catCompatAsked = true;
+            s.ccfPresent = true;
             localStorage.setItem('darkSnowFConfig', JSON.stringify(s));
+            try {
+              if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) DSAlmacen.guardarJSON('darkSnowFConfig', s);
+              else if (window.DSPersistencia && DSPersistencia.espejarPronto) DSPersistencia.espejarPronto();
+            } catch (e2) {}
           } catch (e) {}
           blueCursor();
         }
@@ -393,19 +406,86 @@
   console.log('Configuraciones aplicadas completamente');
 })();
 
-// Aviso al detectar CatCursorF instalada (verificación en vivo).
+// Aviso al detectar CatCursorF: una vez por instalación, persistido.
+// Vuelve a preguntar solo si se desinstala y se vuelve a instalar.
 (function catInstallNotice() {
   if (typeof requestCatCursors !== 'function') return;
-  requestCatCursors(2000).then((urls) => {
-    let was = null;
-    try { was = localStorage.getItem('ccf_was_present'); } catch (e) {}
-    const now = urls ? '1' : '0';
-    if (was !== now) {
-      try { localStorage.setItem('ccf_was_present', now); } catch (e) {}
-    }
-    if (now === '1' && was !== '1') {
+  const esInicio = /Index\.html$/i.test(location.pathname || '');
+  if (!esInicio) return;
+
+  const leerCfg = () => {
+    try { return JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}') || {}; }
+    catch (e) { return {}; }
+  };
+  const guardarCfg = (s) => {
+    try {
+      if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) {
+        DSAlmacen.guardarJSON('darkSnowFConfig', s);
+      } else {
+        localStorage.setItem('darkSnowFConfig', JSON.stringify(s));
+        if (window.DSPersistencia && DSPersistencia.espejarPronto) DSPersistencia.espejarPronto();
+      }
+    } catch (e) {}
+  };
+  const marcarPresente = (valor) => {
+    try { localStorage.setItem('ccf_was_present', valor ? '1' : '0'); } catch (e) {}
+    try {
+      if (window.DSPersistencia && DSPersistencia.espejarPronto) DSPersistencia.espejarPronto();
+    } catch (e) {}
+  };
+  const pingCat = (quedan) => requestCatCursors(2500).then((urls) => {
+    if (urls) return urls;
+    if (quedan <= 1) return null;
+    return new Promise((resolve) => {
+      setTimeout(() => { pingCat(quedan - 1).then(resolve); }, 1500);
+    });
+  });
+  const cuandoStorageListo = (cb) => {
+    try {
+      if (window.DSPersistencia && typeof DSPersistencia.restaurarDesdeEspejo === 'function') {
+        DSPersistencia.restaurarDesdeEspejo(function () { cb(); });
+        return;
+      }
+    } catch (e) {}
+    cb();
+  };
+
+  cuandoStorageListo(() => {
+    pingCat(3).then((urls) => {
+      const presente = !!urls;
+      const s = leerCfg();
+      if (!presente) {
+        const fallos = (s.ccfMissCount || 0) + 1;
+        s.ccfMissCount = fallos;
+        // Dos cargas fallidas (con reintentos) = desinstalada de verdad.
+        // Un timeout al abrir el navegador no borra la decisión.
+        if (fallos >= 2) {
+          s.ccfPresent = false;
+          s.catCompatAsked = false;
+          marcarPresente(false);
+        }
+        guardarCfg(s);
+        return;
+      }
+
+      s.ccfMissCount = 0;
+      marcarPresente(true);
+      // Instalaciones previas que ya eligieron cursor: no volver a preguntar.
+      if (s.catCompatAsked !== true && s.cursorChoice) {
+        s.catCompatAsked = true;
+        s.ccfPresent = true;
+        guardarCfg(s);
+        return;
+      }
+      const yaPreguntado = s.catCompatAsked === true;
+      if (yaPreguntado) {
+        s.ccfPresent = true;
+        guardarCfg(s);
+        return;
+      }
+
       const sysLang = (typeof window.dsSysLang === 'function') ? window.dsSysLang() : 'es';
-      const lang = (typeof settings !== 'undefined' && (settings.lang === 'en' || settings.lang === 'es')) ? settings.lang : sysLang;
+      const lang = (s.lang === 'en' || s.lang === 'es') ? s.lang : sysLang;
       const en = lang === 'en';
       const msg = en
         ? 'An extension from our organization was detected: CatCursorF. Choosing "Yes, apply" is recommended to improve your experience and use both extensions.'
@@ -414,7 +494,6 @@
       const yesBtn = en ? 'Yes, apply' : 'Sí, aplicar';
       const noBtn = en ? 'No, keep the previous cursor' : 'No, mantener el cursor anterior';
       const ask = async () => {
-        // Solo un aviso por sesión: el otro detector ya no insistirá.
         try {
           if (window.__dsCatAvisoMostrado) return;
           window.__dsCatAvisoMostrado = true;
@@ -425,17 +504,15 @@
             yes = await DSDialogs.confirm(msg, { title, confirmText: yesBtn, cancelText: noBtn });
           }
         } catch (e) {}
-        try {
-          const s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
-          s.catCursors = !!yes;
-          // Guardar la decisión (antes solo se guardaba catCursors y el otro
-          // aviso volvía a aparecer al abrir el navegador).
-          s.cursorChoice = yes ? 'cats' : 'default';
-          localStorage.setItem('darkSnowFConfig', JSON.stringify(s));
-        } catch (e) {}
+        const cfg = leerCfg();
+        cfg.catCursors = !!yes;
+        cfg.cursorChoice = yes ? 'cats' : 'default';
+        cfg.catCompatAsked = true;
+        cfg.ccfPresent = true;
+        guardarCfg(cfg);
         if (yes) {
-          if (typeof requestCatCursors === 'function' && typeof applyCatCursors === 'function') {
-            requestCatCursors(2500).then((u2) => { if (u2) applyCatCursors(u2); });
+          if (typeof applyCatCursors === 'function') {
+            pingCat(2).then((u2) => { if (u2) applyCatCursors(u2); });
           }
         } else {
           try {
@@ -448,7 +525,7 @@
         }
       };
       setTimeout(ask, 800);
-    }
+    });
   });
 })();
 

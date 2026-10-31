@@ -1522,10 +1522,14 @@ function renderShortcuts() {
       draggedShortcutId = shortcut.id;
       shortcutWasDragged = true;
       shortcutDropCommitted = false;
-      card.classList.add('dragging');
       shortcutsContainer.classList.add('is-dragging');
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', String(shortcut.id));
+      requestAnimationFrame(() => {
+        if (draggedShortcutId !== shortcut.id) return;
+        colocarHuecoAcceso(card);
+        card.classList.add('dragging');
+      });
     });
 
     card.addEventListener('dragend', () => {
@@ -1535,6 +1539,7 @@ function renderShortcuts() {
       document.querySelectorAll('.shortcut-card.dragging, .shortcut-card.drag-over').forEach(el => {
         el.classList.remove('dragging', 'drag-over');
       });
+      quitarHuecoAcceso();
 
       // Si se cancelo con ESC (sin drop), revertir el DOM al orden guardado
       // para no dejar la vista movida sin guardar.
@@ -1583,26 +1588,63 @@ function renderShortcuts() {
   });
 }
 
+function huecoAcceso() {
+  return shortcutsContainer ? shortcutsContainer.querySelector('.shortcut-placeholder') : null;
+}
+
+function quitarHuecoAcceso() {
+  const ph = huecoAcceso();
+  if (ph && ph.parentNode) ph.parentNode.removeChild(ph);
+}
+
+function colocarHuecoAcceso(card) {
+  quitarHuecoAcceso();
+  if (!card || !card.parentNode) return;
+  const ph = document.createElement('div');
+  ph.className = 'shortcut-card shortcut-placeholder';
+  ph.setAttribute('aria-hidden', 'true');
+  card.parentNode.insertBefore(ph, card);
+}
+
+function siguienteHueco(el) {
+  let n = el;
+  while (n && (n.classList.contains('dragging') || n.classList.contains('shortcut-placeholder'))) {
+    n = n.nextElementSibling;
+  }
+  return n;
+}
+
 function getDragAfterShortcut(container, x, y) {
-  const cards = [...container.querySelectorAll('.shortcut-card:not(.dragging):not(.add-new)')];
+  const cards = [...container.querySelectorAll('.shortcut-card:not(.dragging):not(.add-new):not(.shortcut-placeholder)')];
+  const addCard = container.querySelector('.shortcut-card.add-new');
+  if (!cards.length) return addCard;
 
-  return cards.reduce((closest, child) => {
+  let best = null;
+  let bestDist = Infinity;
+  cards.forEach((child) => {
     const box = child.getBoundingClientRect();
-    const sameRow = y >= box.top && y <= box.bottom;
-    const offset = sameRow ? x - box.left - box.width / 2 : y - box.top - box.height / 2;
-
-    if (offset < 0 && offset > closest.offset) {
-      return { offset, element: child };
+    const cx = box.left + box.width / 2;
+    const cy = box.top + box.height / 2;
+    const d = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+    if (d < bestDist) {
+      bestDist = d;
+      best = child;
     }
+  });
+  if (!best) return addCard;
 
-    return closest;
-  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+  const box = best.getBoundingClientRect();
+  const ratio = (x - box.left) / Math.max(box.width, 1);
+  // Zona muerta en el centro: evita el salto adelante/atras en la fila.
+  if (ratio >= 0.35 && ratio <= 0.65) return undefined;
+  if (ratio < 0.35) return best;
+  return siguienteHueco(best.nextElementSibling) || addCard;
 }
 
 let shortcutDropCommitted = false;
 
 function saveShortcutOrderFromDom() {
-  const orderedIds = [...shortcutsContainer.querySelectorAll('.shortcut-card:not(.add-new)')]
+  const orderedIds = [...shortcutsContainer.querySelectorAll('.shortcut-card:not(.add-new):not(.shortcut-placeholder)')]
     .map(card => Number(card.dataset.shortcutId));
 
   const ordered = orderedIds
@@ -1631,23 +1673,15 @@ shortcutsContainer.addEventListener('dragover', (e) => {
 
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-  const draggingCard = shortcutsContainer.querySelector('.shortcut-card.dragging');
+  const ph = huecoAcceso();
   const addCard = shortcutsContainer.querySelector('.shortcut-card.add-new');
-  if (!draggingCard) return;
+  if (!ph) return;
 
-  const afterElement = getDragAfterShortcut(shortcutsContainer, e.clientX, e.clientY);
-
-  // Insercion estable: si ya esta en su sitio, no mover (evita el temblor
-  // adelante/atras al arrastrar el 3 al puesto del 5 en filas de 5).
-  if (afterElement == null) {
-    if (draggingCard.nextSibling !== addCard) {
-      shortcutsContainer.insertBefore(draggingCard, addCard);
-    }
-  } else {
-    if (draggingCard === afterElement) return;
-    if (draggingCard.nextSibling === afterElement) return;
-    shortcutsContainer.insertBefore(draggingCard, afterElement);
-  }
+  const destino = getDragAfterShortcut(shortcutsContainer, e.clientX, e.clientY);
+  if (destino === undefined) return;
+  const target = destino || addCard;
+  if (!target || ph === target || ph.nextSibling === target) return;
+  shortcutsContainer.insertBefore(ph, target);
 });
 
 shortcutsContainer.addEventListener('drop', (e) => {
@@ -1655,6 +1689,13 @@ shortcutsContainer.addEventListener('drop', (e) => {
 
   e.preventDefault();
   lastDropTarget = null;
+  const draggingCard = shortcutsContainer.querySelector('.shortcut-card.dragging');
+  const ph = huecoAcceso();
+  if (draggingCard && ph && ph.parentNode) {
+    ph.parentNode.insertBefore(draggingCard, ph);
+  }
+  quitarHuecoAcceso();
+  if (draggingCard) draggingCard.classList.remove('dragging');
   shortcutDropCommitted = true;
   saveShortcutOrderFromDom();
 });

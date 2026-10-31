@@ -14,7 +14,7 @@
 
 <div align="center">
 
-![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v1.1.2-blue?style=for-the-badge&logo=firefox)
+![DarkSnowF](https://img.shields.io/badge/DarkSnowF-v1.1.3-blue?style=for-the-badge&logo=firefox)
 
 ## DarkSnowF
 
@@ -53,14 +53,21 @@ Experiencia oscura, personalizable y completa. Buscador multi-motor, accesos rá
 - **Nieve Animada** — Efectos navideños y easter eggs
 - **100% Local** — Sin nube, sin rastreo, todo en tu navegador
 
+### Novedades 1.1.3
+
+- Corregido el aviso de compatibilidad con CatCursorF para que aparezca una sola vez por instalación.
+- El aviso ya no reaparece al abrir nuevas pestañas si CatCursorF tarda en responder.
+- Se conserva la decisión de cursor del usuario entre sesiones.
+
 ### Estructura del Proyecto
 
 ```text
 DarkSnowF/
 ├── Index.html                  ← inicio (buscador, accesos, categorías, logo)
 ├── popup.html                  ← mini menú del icono (redes, perfiles, ventana)
-├── manifest.json               ← MV3 v1.1.2 (newtab, homepage, fondo worker+scripts)
+├── manifest.json               ← MV3 v1.1.3 (newtab, homepage, fondo worker+scripts)
 ├── .vscode/settings.json       ← solo editor, excluido del XPI
+├── build.py                    ← genera el XPI para AMO y GitHub
 ├── pages/
 │   ├── config.html             ← ajustes, perfiles, exportar/importar TXT-JSON
 │   ├── perfiles.html           ← perfil ajustes (descargar/subir 1, varios o todos)
@@ -92,7 +99,7 @@ DarkSnowF/
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
 ├── utils/dialogs.js            ← diálogos (confirm, prompt, subida de imagen, selector de emojis)
 ├── themes/ (oscuro, claro)     ← temas
-└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2) ← paquetes XPI
+└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2, V1.1.3) ← paquetes XPI
 ```
 ### Cómo Usar
 
@@ -115,7 +122,7 @@ DarkSnowF/
 
 ### Instalación
 
-1. Descarga desde Firefox Add-ons: [DarkSnowF](link)
+1. Descarga desde Firefox Add-ons: [DarkSnowF](https://addons.mozilla.org/es-ES/firefox/addon/darksnowf/)
 2. Click "Agregar a Firefox"
 3. Tu nueva pestaña está lista
 
@@ -124,7 +131,7 @@ DarkSnowF/
 GNU General Public License v3.0 — Ver archivo LICENSE
 
 Desarrollado por **Freezeezy Peak**
-GitHub: [github.com/FreezeezyPeak-StudioDev/DarkSnowF](link)
+GitHub: [github.com/FreezeezyPeak-StudioDev/DarkSnowF](https://github.com/FreezeezyPeak-StudioDev/DarkSnowF)
 
 ---
 
@@ -149,16 +156,21 @@ Dark, customizable, complete experience. Multi-engine search, draggable shortcut
 - **Animated Snow** — Holiday effects and easter eggs
 - **100% Local** — No cloud, no tracking, everything in your browser
 
-### Project Structure
+### What's New in 1.1.3
 
-## Project Structure
+- Fixed the CatCursorF compatibility notice so it appears only once per installation.
+- The notice no longer reappears on new tabs when CatCursorF is slow to respond.
+- The user's cursor choice is preserved across sessions.
+
+### Project Structure
 
 ```text
 DarkSnowF/
 ├── Index.html                  ← home (search, shortcuts, categories, logo)
 ├── popup.html                  ← toolbar popup (socials, profiles, window)
-├── manifest.json               ← MV3 v1.1.2 (newtab, homepage, worker+scripts background)
+├── manifest.json               ← MV3 v1.1.3 (newtab, homepage, worker+scripts background)
 ├── .vscode/settings.json       ← editor only, excluded from XPI
+├── build.py                    ← builds the XPI for AMO and GitHub
 ├── pages/
 │   ├── config.html             ← settings, profiles, TXT-JSON backup
 │   ├── perfiles.html           ← profile settings (download/upload one, several or all)
@@ -190,7 +202,7 @@ DarkSnowF/
 │       └── clock, snow, festive, rotate, search-suggest, cat-remote, menu, modals
 ├── utils/dialogs.js            ← dialogs (confirm, prompt, image upload, emoji picker)
 ├── themes/ (oscuro, claro)     ← themes
-└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2) ← XPI packages
+└── versions/ (V1.0, V1.1.0, V1.1.1, V1.1.2, V1.1.3) ← XPI packages
 ```
 
 
@@ -215,7 +227,7 @@ DarkSnowF/
 
 ### Installation
 
-1. Download from Firefox Add-ons: [DarkSnowF](link)
+1. Download from Firefox Add-ons: [DarkSnowF](https://addons.mozilla.org/en-US/firefox/addon/darksnowf/)
 2. Click "Add to Firefox"
 3. Your new tab is ready
 
@@ -224,7 +236,7 @@ DarkSnowF/
 GNU General Public License v3.0 — See LICENSE file
 
 Developed by **Freezeezy Peak**
-GitHub: [github.com/FreezeezyPeak-StudioDev/DarkSnowF](link)
+GitHub: [github.com/FreezeezyPeak-StudioDev/DarkSnowF](https://github.com/FreezeezyPeak-StudioDev/DarkSnowF)
 
 ---
 

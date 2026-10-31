@@ -219,7 +219,7 @@ function bindControls() {
       s = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
     } catch (e) {}
     const off = s.customCursor === false;
-    document.querySelectorAll('link[href*="cursor.css"]').forEach((l) => {
+    document.querySelectorAll('link[href*="cursor.css"], #ds-home-cursor').forEach((l) => {
       try { l.disabled = off; } catch (e) {}
     });
     let offStyle = document.getElementById('ds-cursor-off');
@@ -277,12 +277,19 @@ function bindControls() {
               yes = await DSDialogs.confirm(okMsg, { title: okTitle, confirmText: yesBtn, cancelText: noBtn });
             }
           } catch (e) {}
+          try {
+            const s0 = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
+            s0.catCompatAsked = true;
+            s0.ccfPresent = true;
+            if (!yes) s0.catCursors = false;
+            else {
+              s0.catCursors = true;
+              s0.cursorChoice = 'cats';
+            }
+            localStorage.setItem('darkSnowFConfig', JSON.stringify(s0));
+            if (typeof DSAlmacen !== 'undefined' && DSAlmacen.guardarJSON) DSAlmacen.guardarJSON('darkSnowFConfig', s0);
+          } catch (e) {}
           if (!yes) {
-            try {
-              const s0 = JSON.parse(localStorage.getItem('darkSnowFConfig') || '{}');
-              s0.catCursors = false;
-              localStorage.setItem('darkSnowFConfig', JSON.stringify(s0));
-            } catch (e) {}
             catBox.checked = false;
             try { if (typeof clearCatCursors === 'function') clearCatCursors(); } catch (e) {}
             setTimeout(liveCursor, 60);
